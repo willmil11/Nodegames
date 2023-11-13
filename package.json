@@ -1,0 +1,40 @@
+{
+  "name": "nodegames",
+  "version": "1.0.0",
+  "description": "Nodegames is a node.js game engine inspired by Pygame",
+  "main": "nodegames.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willmil11/Nodegames.git"
+  },
+  "keywords": [
+    "game",
+    "engine",
+    "gameengine",
+    "gamengine",
+    "node",
+    "js",
+    "node.js",
+    "javascript",
+    "pygame",
+    "turtle",
+    "game",
+    "games",
+    "builder",
+    "easy",
+    "free",
+    "cool"
+  ],
+  "author": "willmil11",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/willmil11/Nodegames/issues"
+  },
+  "homepage": "https://github.com/willmil11/Nodegames#readme",
+  "dependencies": {
+    "electron": "27.0.4"
+  }
+}
