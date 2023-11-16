@@ -64,10 +64,18 @@
         var sendMousePosUpdate = function(){}
         var mouseY = null;
         var mouseX = null;
+        var pcooldown = false;
         rendererelem.onmousemove = function(event){
+            if (pcooldown){
+                return;
+            }
+            pcooldown = true;
             mouseX = event.clientX;
             mouseY = event.clientY;
             sendMousePosUpdate(event.clientX, event.clientY);
+            setTimeout(function(){
+                pcooldown = false;
+            }, 25);
         }
 
         var sendMouseClick = function(){}
@@ -103,7 +111,12 @@
         }
 
         var sendMouseScroll = function(){}
+        var wcooldown = false;
         rendererelem.onwheel = function(event){
+            if (wcooldown){
+                return;
+            }
+            wcooldown = true;
             var direction = null;
             //Can be left right down up choose the most significant
             if (event.deltaX > event.deltaY){
@@ -127,6 +140,9 @@
                 "direction": direction,
                 "speed": speed
             });
+            setTimeout(function(){
+                wcooldown = false;
+            }, 25);
         }
 
         console.log("[Nodegames] Loaded.");
