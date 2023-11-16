@@ -154,8 +154,14 @@ module.exports = {
                     if (canvas === null) {
                         var callbacks = {
                             "sizeUpdate": function(){},
-                            "close": function(){}
+                            "close": function(){},
+                            "mouseposupdate": function(){},
+                            "keypress": function(){},
+                            "mouseclick": function(){},
+                            "mousescroll": function(){},
+                            "keyrelease": function(){}
                         }
+
                         canvas = {
                             "get": {
                                 "setPixel": function (x, y, rgb) {
@@ -425,18 +431,71 @@ module.exports = {
                                     if (event === "close"){
                                         callbacks.close = callback;
                                     }
+                                    else{
+                                        if (event === "mousePositionUpdate"){
+                                            callbacks.mouseposupdate = callback;
+                                        }
+                                        else{
+                                            if (event === "keypress"){
+                                                callbacks.keypress = callback;
+                                            }
+                                            else{
+                                                if (event === "mouseclick"){
+                                                    callbacks.mouseclick = callback;
+                                                }
+                                                else{
+                                                    if (event === "mousescroll"){
+                                                        callbacks.mousescroll = callback;
+                                                    }
+                                                    else{
+                                                        if (event === "keyrelease"){
+                                                            callbacks.keyrelease = callback;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
+
                         var initialSizeUpdate = true;
                         client.onmessage(function(data){
                             data = JSON.parse(data);
                             if (data.type === "sizeupdate"){
+                                width = data.data.width;
+                                height = data.data.height;
                                 if (initialSizeUpdate === true){
                                     initialSizeUpdate = false;
                                     return;
                                 }
                                 callbacks.sizeUpdate(data.data.width, data.data.height);
+                            }
+                            else{
+                                if (data.type === "mouseposupdate"){
+                                    callbacks.mouseposupdate(data.data.x, data.data.y);
+                                }
+                                else{
+                                    if (data.type === "keypress"){
+                                        callbacks.keypress(data.data);
+                                    }
+                                    else{
+                                        if (data.type === "mouseclick"){
+                                            callbacks.mouseclick(data.data);
+                                        }
+                                        else{
+                                            if (data.type === "mousescroll"){
+                                                callbacks.mousescroll(data.data);
+                                            }
+                                            else{
+                                                if (data.type === "keyrelease"){
+                                                    callbacks.keyrelease(data.data);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         })
                         client.onclose(function(){

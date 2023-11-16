@@ -16,12 +16,25 @@ nodegames.newGame(async function (game) {
 
     game.on("sizeUpdate", function (w, h) {
         console.log("Size update", w, h);
-        width = w;
-        height = h;
     });
     game.on("close", function(){
         require("process").exit(0);
     })
+    game.on("mousePositionUpdate", function (x, y) {
+        console.log("Mouse position update", x, y);
+    })
+    game.on("keypress", function (event) {
+        console.log("Key press", event);
+    })
+    game.on("mouseclick", function(event){
+        console.log("Mouse click", event);
+    })
+    game.on("mousescroll", function(event){
+        console.log("Mouse scroll", event);
+    });
+    game.on("keyrelease", function(event){
+        console.log("Key release", event);
+    });
 
     //Draw a rgb(80, 255, 80) square rotating in the middle of the screen
     //Close game after 1000 5 degrees rotations

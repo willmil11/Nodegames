@@ -9,7 +9,13 @@
 </html>
 <script>
     (async function(){
+        var sendKeypress = function(){}
         window.onkeydown = function(event){
+            sendKeypress({
+                "key": event.key,
+                "shiftKey": event.shiftKey,
+                "ctrlKey": event.ctrlKey
+            });
             //Block all way to open dev tool
             //Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
             if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.shiftKey && event.keyCode === 74) || (event.ctrlKey && event.shiftKey && event.keyCode === 67)){
@@ -20,6 +26,18 @@
             if (event.keyCode === 116 || (event.ctrlKey && event.keyCode === 82) || (event.ctrlKey && event.shiftKey && event.keyCode === 82)){
                 event.preventDefault();
             }
+            //Cancel control + w
+            if (event.ctrlKey && event.keyCode === 87){
+                event.preventDefault();
+            }
+        }
+        var sendKeyRelease = function(){}
+        window.onkeyup = function(event){
+            sendKeyRelease({
+                "key": event.key,
+                "shiftKey": event.shiftKey,
+                "ctrlKey": event.ctrlKey
+            });
         }
         console.log("[Nodegames] Loading...");
         document.body.style.backgroundColor = "rgb(255, 255, 255)";
@@ -42,6 +60,66 @@
                 sendSizeUpdate();
             }
         }, 1);
+
+        var sendMousePosUpdate = function(){}
+        var mouseY = null;
+        var mouseX = null;
+        rendererelem.onmousemove = function(event){
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+            sendMousePosUpdate(event.clientX, event.clientY);
+        }
+
+        var sendMouseClick = function(){}
+        rendererelem.onmousedown = function(event){
+            //If scrollwheel
+            if (event.button === 1){
+                sendMouseClick({
+                    "button": "scrollwheel",
+                    "x": event.clientX,
+                    "y": event.clientY
+                });
+            }
+            else{
+                //If left click
+                if (event.button === 0){
+                    sendMouseClick({
+                        "button": "left",
+                        "x": event.clientX,
+                        "y": event.clientY
+                    });
+                }
+                else{
+                    //If right click
+                    if (event.button === 2){
+                        sendMouseClick({
+                            "button": "right",
+                            "x": event.clientX,
+                            "y": event.clientY
+                        });
+                    }
+                }
+            }
+        }
+
+        var sendMouseScroll = function(){}
+        rendererelem.onwheel = function(event){
+            var direction = null;
+            if (event.deltaY < 0){
+                direction = "up";
+            }
+            else{
+                if (event.deltaY > 0){
+                    direction = "down";
+                }
+            }
+            var speed = event.deltaY;
+            sendMouseScroll({
+                "direction": direction,
+                "speed": speed
+            });
+        }
+
         console.log("[Nodegames] Loaded.");
         console.log("[Nodegames] Waiting for connection info to load...");
         while (typeof port === "undefined"){
@@ -73,6 +151,39 @@
                         "width": rendererelem.width,
                         "height": rendererelem.height
                     }
+                }))
+            }
+            sendMousePosUpdate = function(x, y){
+                ws.send(JSON.stringify({
+                    "type": "mouseposupdate",
+                    "data": {
+                        "x": x,
+                        "y": y
+                    }
+                }))
+            }
+            sendKeypress = function(key){
+                ws.send(JSON.stringify({
+                    "type": "keypress",
+                    "data": key
+                }))
+            }
+            sendMouseClick = function(data){
+                ws.send(JSON.stringify({
+                    "type": "mouseclick",
+                    "data": data
+                }))
+            }
+            sendMouseScroll = function(data){
+                ws.send(JSON.stringify({
+                    "type": "mousescroll",
+                    "data": data
+                }))
+            }
+            sendKeyRelease = function(key){
+                ws.send(JSON.stringify({
+                    "type": "keyrelease",
+                    "data": key
                 }))
             }
             ws.onmessage = function(data){
