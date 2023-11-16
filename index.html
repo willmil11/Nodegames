@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Untitled</title>
+    </head>
+    <body>
+        <canvas id="renderer"></canvas>
+    </body>
+</html>
+<script>
+    (async function(){
+        window.onkeydown = function(event){
+            //Block all way to open dev tool
+            //Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+            if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.shiftKey && event.keyCode === 74) || (event.ctrlKey && event.shiftKey && event.keyCode === 67)){
+                event.preventDefault();
+            }
+            //Disable all ways to reload
+            //Block F5, Ctrl+R, Ctrl+Shift+R
+            if (event.keyCode === 116 || (event.ctrlKey && event.keyCode === 82) || (event.ctrlKey && event.shiftKey && event.keyCode === 82)){
+                event.preventDefault();
+            }
+        }
+        console.log("[Nodegames] Loading...");
+        document.body.style.backgroundColor = "rgb(255, 255, 255)";
+        document.body.style.margin = "0px";
+        document.body.style.overflow = "hidden";
+
+        var rendererelem = document.getElementById("renderer");
+        rendererelem.width = window.innerWidth; 
+        rendererelem.height = window.innerHeight;
+        rendererelem.style.position = "absolute";
+        var oldWidth = window.innerWidth;
+        var oldHeight = window.innerHeight;
+        var sendSizeUpdate = function(){}
+        setInterval(function(){
+            if (oldWidth !== window.innerWidth || oldHeight !== window.innerHeight){
+                rendererelem.width = window.innerWidth; 
+                rendererelem.height = window.innerHeight;
+                oldWidth = window.innerWidth;
+                oldHeight = window.innerHeight;
+                sendSizeUpdate();
+            }
+        }, 1);
+        console.log("[Nodegames] Loaded.");
+        console.log("[Nodegames] Waiting for connection info to load...");
+        while (typeof port === "undefined"){
+            await new Promise(resolve => setTimeout(resolve, 1));
+        }
+        console.log("[Nodegames] Connection info loaded.");
+        //Create a websocket to 127.0.0.1:port
+        var ws = new WebSocket("ws://127.0.0.1:" + port);
+        console.log("[Nodegames] Connecting...");
+        ws.onopen = function(){
+            var ctx = rendererelem.getContext("2d");
+            console.log("[Nodegames] Connected and ready.")
+            ws.onclose = function(){
+                console.log("[Nodegames] Connection closed.")
+                console.log("[Nodegames] Exiting...")
+                window.close();
+            }
+            ws.send(JSON.stringify({
+                "type": "sizeupdate",
+                "data": {
+                    "width": rendererelem.width,
+                    "height": rendererelem.height
+                }
+            }))
+            sendSizeUpdate = function(){
+                ws.send(JSON.stringify({
+                    "type": "sizeupdate",
+                    "data": {
+                        "width": rendererelem.width,
+                        "height": rendererelem.height
+                    }
+                }))
+            }
+            ws.onmessage = function(data){
+                data = data.data;
+                data = JSON.parse(data);
+                if (data.type === "setPixel"){
+                    var rgb = data.data.rgb;
+                    var x = data.data.x;
+                    var y = data.data.y;
+                    ctx.fillStyle = rgb.toString();
+                    ctx.fillRect(x, y, 1, 1);
+                }
+                else{
+                    if (data.type === "clear"){
+                        ctx.clearRect(0, 0, rendererelem.width, rendererelem.height);
+                    }
+                    else{
+                        if (data.type === "setRectangle"){
+                            //If there is a rotation propertie its in degrees the rotation point is the center of the shape
+                            //If outline propertie is true only draw the outline else fill the shape
+                            var x = data.data.x;
+                            var y = data.data.y;
+                            var width = data.data.width;
+                            var height = data.data.height;
+                            var rgb = data.data.rgb;
+                            var rotation = data.data.rotation;
+                            var outline = data.data.outline;
+                            ctx.fillStyle = rgb.toString();
+                            if (!(rotation === 0)){
+                                ctx.save();
+                                ctx.translate(x + width / 2, y + height / 2);
+                                ctx.rotate(Math.PI / 180 * rotation);
+                                ctx.translate(-(x + width / 2), -(y + height / 2));
+                                if (outline){
+                                    ctx.strokeStyle = rgb.toString();
+                                    ctx.strokeRect(x, y, width, height);
+                                }
+                                else{
+                                    ctx.fillRect(x, y, width, height);
+                                }
+                                ctx.restore();
+                            }
+                            else{
+                                if (outline){
+                                    ctx.strokeStyle = rgb.toString();
+                                    ctx.strokeRect(x, y, width, height);
+                                }
+                                else{
+                                    ctx.fillRect(x, y, width, height);
+                                }
+                            }
+                        }
+                        else{
+                            if (data.type === "setCircle"){
+                                //If there is a rotation propertie its in degrees the rotation point is the center of the shape
+                                //If outline propertie is true only draw the outline else fill the shape
+                                var x = data.data.x;
+                                var y = data.data.y;
+                                var radius = data.data.radius;
+                                var rgb = data.data.rgb;
+                                var rotation = data.data.rotation;
+                                var outline = data.data.outline;
+                                ctx.fillStyle = rgb.toString();
+                                if (!(rotation === 0)){
+                                    ctx.save();
+                                    ctx.translate(x + radius, y + radius);
+                                    ctx.rotate(Math.PI / 180 * rotation);
+                                    ctx.translate(-(x + radius), -(y + radius));
+                                    if (outline){
+                                        ctx.strokeStyle = rgb.toString();
+                                        ctx.beginPath();
+                                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                                        ctx.stroke();
+                                    }
+                                    else{
+                                        ctx.beginPath();
+                                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                                        ctx.fill();
+                                    }
+                                    ctx.restore();
+                                }
+                                else{
+                                    if (outline){
+                                        ctx.strokeStyle = rgb.toString();
+                                        ctx.beginPath();
+                                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                                        ctx.stroke();
+                                    }
+                                    else{
+                                        ctx.beginPath();
+                                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                                        ctx.fill();
+                                    }
+                                }
+                            }
+                            else{
+                                if (data.type === "setLine"){
+                                    //If there is a rotation propertie its in degrees the rotation point is the center of the shape
+                                    var x1 = data.data.x1;
+                                    var y1 = data.data.y1;
+                                    var x2 = data.data.x2;
+                                    var y2 = data.data.y2;
+                                    var rgb = data.data.rgb;
+                                    var rotation = data.data.rotation;
+                                    ctx.strokeStyle = rgb.toString();
+                                    if (!(rotation === 0)){
+                                        ctx.save();
+                                        ctx.translate(x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2);
+                                        ctx.rotate(Math.PI / 180 * rotation);
+                                        ctx.translate(-(x1 + (x2 - x1) / 2), -(y1 + (y2 - y1) / 2));
+                                        ctx.beginPath();
+                                        ctx.moveTo(x1, y1);
+                                        ctx.lineTo(x2, y2);
+                                        ctx.stroke();
+                                        ctx.restore();
+                                    }
+                                    else{
+                                        ctx.beginPath();
+                                        ctx.moveTo(x1, y1);
+                                        ctx.lineTo(x2, y2);
+                                        ctx.stroke();
+                                    }
+                                }
+                                else{
+                                    if (data.type === "setText"){
+                                        //FontSize and fontName propertie are text style
+                                        //If there is a rotation propertie its in degrees the rotation point is the center of the shape
+                                        //If outline propertie is true only draw the outline else fill the shape
+                                        var x = data.data.x;
+                                        var y = data.data.y;
+                                        var text = data.data.text;
+                                        var rgb = data.data.rgb;
+                                        var fontSize = data.data.fontSize;
+                                        var fontName = data.data.fontName;
+                                        var rotation = data.data.rotation;
+                                        var outline = data.data.outline;
+                                        ctx.fillStyle = rgb.toString();
+                                        ctx.font = fontSize + "px " + fontName;
+                                        if (!(rotation === 0)){
+                                            ctx.save();
+                                            ctx.translate(x + ctx.measureText(text).width / 2, y + fontSize / 2);
+                                            ctx.rotate(Math.PI / 180 * rotation);
+                                            ctx.translate(-(x + ctx.measureText(text).width / 2), -(y + fontSize / 2));
+                                            if (outline){
+                                                ctx.strokeStyle = rgb.toString();
+                                                ctx.strokeText(text, x, y);
+                                            }
+                                            else{
+                                                ctx.fillText(text, x, y);
+                                            }
+                                            ctx.restore();
+                                        }
+                                        else{
+                                            if (outline){
+                                                ctx.strokeStyle = rgb.toString();
+                                                ctx.strokeText(text, x, y);
+                                            }
+                                            else{
+                                                ctx.fillText(text, x, y);
+                                            }
+                                        }
+                                    }
+                                    else{
+                                        if (data.type === "rawctx"){
+                                            eval(data.data.rawctx)
+                                        }
+                                        else{
+                                            if (data.type === "clearZone"){
+                                                var x = data.data.x;
+                                                var y = data.data.y;
+                                                var width = data.data.width;
+                                                var height = data.data.height;
+                                                ctx.clearRect(x, y, width, height);
+                                            }
+                                            else{
+                                                if (data.type === "setPixelArray"){
+                                                    var pixelArray = data.data.pixelArray;
+                                                    var index = 0;
+                                                    while (index < pixelArray.length){
+                                                        var rgb = pixelArray[index][0];
+                                                        var x = pixelArray[index][1];
+                                                        var y = pixelArray[index][2];
+                                                        ctx.fillStyle = rgb.toString();
+                                                        ctx.fillRect(x, y, 1, 1);
+                                                        index += 1;
+                                                    }
+                                                }
+                                                else{
+                                                    if (data.type === "multipleInstructions"){
+                                                        var instructions = data.data.instructions;
+                                                        instructions = "[" + instructions + "]";
+                                                        instructions = JSON.parse(instructions);
+                                                        var i = 0;
+                                                        while (i < instructions.length){
+                                                            var item = instructions[i];
+                                                            ws.onmessage({"data": JSON.stringify(item)});
+                                                            i += 1;
+                                                        }
+                                                    }
+                                                    else{
+                                                        if (data.type === "action"){
+                                                            if (data.data.action === "close"){
+                                                                ws.close()
+                                                                window.close();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })()
+</script>
