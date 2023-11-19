@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>Untitled</title>
-</head>
-
-<body>
-    <canvas id="renderer"></canvas>
-</body>
-
+    <head>
+        <title>Untitled</title>
+    </head>
+    <body>
+        <canvas id="renderer"></canvas>
+    </body>
 </html>
 <script>
     (async function () {
@@ -224,7 +221,7 @@
         console.log("[Nodegames] Loaded.");
         console.log("[Nodegames] Waiting for connection info to load...");
         while (typeof port === "undefined") {
-            await new Promise(resolve => setTimeout(resolve, 1));
+            await new Promise(function (resolve) { setTimeout(resolve, 1) });
         }
         console.log("[Nodegames] Connection info loaded.");
         //Create a websocket to 127.0.0.1:port
@@ -237,7 +234,7 @@
                 ws2opened = true
             }
             while (ws2opened === false) {
-                await new Promise(resolve => setTimeout(resolve, 1));
+                await new Promise(function (resolve) { setTimeout(resolve, 1) });
             }
             var ctx = rendererelem.getContext("2d");
             var images = {};
@@ -464,7 +461,7 @@
                                                 var width = data.data.width;
                                                 var height = data.data.height;
                                                 var rotation = data.data.rotation
-                                                
+
                                                 ctx.save()
                                                 if (!(rotation === 0)) {
                                                     ctx.translate(x + width / 2, y + height / 2);
@@ -501,6 +498,9 @@
                                                             ws.onmessage({ "data": JSON.stringify(item) });
                                                             i += 1;
                                                         }
+                                                        ws2.send(JSON.stringify({
+                                                            "type": "framerendered"
+                                                        }))
                                                     }
                                                     else {
                                                         if (data.type === "action") {
@@ -515,10 +515,10 @@
                                                                 var base64 = data.data.base64;
                                                                 var b64toBlob = function (b64Data, contentType = "", sliceSize = 512) {
                                                                     var byteCharacters;
-                                                                    try{
+                                                                    try {
                                                                         byteCharacters = atob(b64Data);
                                                                     }
-                                                                    catch (error){
+                                                                    catch (error) {
                                                                         ws2.send(JSON.stringify({
                                                                             "type": "errorLoadingImage",
                                                                             "data": {
@@ -549,10 +549,10 @@
                                                                     return blob;
                                                                 }
                                                                 var blob;
-                                                                try{
+                                                                try {
                                                                     blob = b64toBlob(base64, "image/png");
                                                                 }
-                                                                catch (error){
+                                                                catch (error) {
                                                                     ws2.send(JSON.stringify({
                                                                         "type": "errorLoadingImage",
                                                                         "data": {
@@ -562,10 +562,10 @@
                                                                     return;
                                                                 }
                                                                 var url;
-                                                                try{
+                                                                try {
                                                                     url = URL.createObjectURL(blob);
                                                                 }
-                                                                catch (error){
+                                                                catch (error) {
                                                                     ws2.send(JSON.stringify({
                                                                         "type": "errorLoadingImage",
                                                                         "data": {
@@ -604,10 +604,10 @@
                                                                         ctx.translate(x + width / 2, y + height / 2);
                                                                         ctx.rotate(Math.PI / 180 * rotation);
                                                                         ctx.translate(-(x + width / 2), -(y + height / 2));
-                                                                        try{
+                                                                        try {
                                                                             ctx.drawImage(image, x, y, width, height);
                                                                         }
-                                                                        catch (error){
+                                                                        catch (error) {
                                                                             ctx.restore();
                                                                             ws2.send(JSON.stringify({
                                                                                 "type": "errorDrawingImage",
@@ -620,10 +620,10 @@
                                                                         ctx.restore();
                                                                     }
                                                                     else {
-                                                                        try{
+                                                                        try {
                                                                             ctx.drawImage(image, x, y, width, height);
                                                                         }
-                                                                        catch (error){
+                                                                        catch (error) {
                                                                             ws2.send(JSON.stringify({
                                                                                 "type": "errorDrawingImage",
                                                                                 "data": {
@@ -634,11 +634,11 @@
                                                                         }
                                                                     }
                                                                 }
-                                                                else{
-                                                                    if (data.type === "unloadImage"){
+                                                                else {
+                                                                    if (data.type === "unloadImage") {
                                                                         var id = data.data.id;
                                                                         //if image doesnt exist
-                                                                        if (images[id] == null){
+                                                                        if (images[id] == null) {
                                                                             ws2.send(JSON.stringify({
                                                                                 "type": "errorUnloadingImage",
                                                                                 "data": {
@@ -654,6 +654,11 @@
                                                                                 "id": id
                                                                             }
                                                                         }))
+                                                                    }
+                                                                    else {
+                                                                        if (data.type === "setTitle") {
+                                                                            document.title = data.data.title
+                                                                        }
                                                                     }
                                                                 }
                                                             }

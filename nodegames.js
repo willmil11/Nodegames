@@ -1,6 +1,8 @@
 //Nodegames by willmil11 [API]
 //
 
+const { checkPrimeSync } = require("crypto");
+
 module.exports = {
     "system": {
         "inited": false,
@@ -136,20 +138,21 @@ module.exports = {
         var easynodes = this.system.easynodes;
         var portget = this.system.portget;
         var callbacks = {
-            "sizeUpdate": function(){},
-            "close": function(){},
-            "mouseposupdate": function(){},
-            "keypress": function(){},
-            "mouseclick": function(){},
-            "mousescroll": function(){},
-            "keyrelease": function(){},
-            "imageloaded": function(){},
-            "error": function(){},
-            "imageunloaded": function(){}
+            "sizeUpdate": function () { },
+            "close": function () { },
+            "mouseposupdate": function () { },
+            "keypress": function () { },
+            "mouseclick": function () { },
+            "mousescroll": function () { },
+            "keyrelease": function () { },
+            "imageloaded": function () { },
+            "error": function () { },
+            "imageunloaded": function () { },
+            "framerender": function () { }
         }
         var loadedImages = [];
         var errorloadingImage = [];
-        var errordrawingImage =  [];
+        var errordrawingImage = [];
 
         var port;
         portget().then(function (out) {
@@ -292,7 +295,7 @@ module.exports = {
                                         }
                                     }))
                                 },
-                                "close": function(){
+                                "close": function () {
                                     return (JSON.stringify({
                                         "type": "action",
                                         "data": {
@@ -300,7 +303,7 @@ module.exports = {
                                         }
                                     }))
                                 },
-                                "setImage": function(id, x, y, width, height, rotation){
+                                "setImage": function (id, x, y, width, height, rotation) {
                                     return (JSON.stringify({
                                         "type": "setImage",
                                         "data": {
@@ -415,7 +418,7 @@ module.exports = {
                             },
                             "clearZone": function (x, y, width, height, rotation) {
                                 checkclosed();
-                                if (rotation == null){
+                                if (rotation == null) {
                                     rotation = 0;
                                 }
                                 client.send(JSON.stringify({
@@ -453,7 +456,7 @@ module.exports = {
                                     }
                                 }))
                             },
-                            "close": function(){
+                            "close": function () {
                                 checkclosed();
                                 client.send(JSON.stringify({
                                     "type": "action",
@@ -462,7 +465,7 @@ module.exports = {
                                     }
                                 }))
                             },
-                            "setImage": function(id, x, y, width, height, rotation){
+                            "setImage": function (id, x, y, width, height, rotation) {
                                 checkclosed();
                                 client.send(JSON.stringify({
                                     "type": "setImage",
@@ -476,7 +479,7 @@ module.exports = {
                                     }
                                 }))
                             },
-                            "loadImage": async function(base64, id){
+                            "loadImage": async function (base64, id) {
                                 checkclosed();
                                 client.send(JSON.stringify({
                                     "type": "loadImage",
@@ -485,11 +488,11 @@ module.exports = {
                                         "base64": base64
                                     }
                                 }))
-                                while (loadedImages.includes(id) === false){
-                                    await new Promise(resolve => setTimeout(resolve, 10));
+                                while (loadedImages.includes(id) === false) {
+                                    await new Promise(function (resolve) { setTimeout(resolve, 10) });
                                     var index = 0;
-                                    while (index < errorloadingImage.length){
-                                        if (errorloadingImage[index] === id){
+                                    while (index < errorloadingImage.length) {
+                                        if (errorloadingImage[index] === id) {
                                             errorloadingImage.splice(index, 1);
                                             return 1;
                                         }
@@ -497,9 +500,9 @@ module.exports = {
                                     }
                                 }
                             },
-                            "unloadImage": function(id){
+                            "unloadImage": function (id) {
                                 checkclosed();
-                                if (loadedImages.includes(id) === false){
+                                if (loadedImages.includes(id) === false) {
                                     return 1;
                                 }
                                 client.send(JSON.stringify({
@@ -510,56 +513,67 @@ module.exports = {
                                 }))
                                 //remove from loadedImages
                                 var index = 0;
-                                while (index < loadedImages.length){
-                                    if (loadedImages[index] === id){
+                                while (index < loadedImages.length) {
+                                    if (loadedImages[index] === id) {
                                         loadedImages.splice(index, 1);
                                         return 0;
                                     }
                                     index += 1;
                                 }
                             },
+                            "setTitle": function (title) {
+                                checkclosed();
+                                client.send(JSON.stringify({
+                                    "type": "setTitle",
+                                    "data": {
+                                        "title": title
+                                    }
+                                }))
+                            },
                             "on": function (event, callback) {
-                                if (event === "sizeUpdate"){
+                                if (event === "sizeUpdate") {
                                     callbacks.sizeUpdate = callback;
                                 }
-                                else{
-                                    if (event === "close"){
+                                else {
+                                    if (event === "close") {
                                         callbacks.close = callback;
                                     }
-                                    else{
-                                        if (event === "mousePositionUpdate"){
+                                    else {
+                                        if (event === "mousePositionUpdate") {
                                             callbacks.mouseposupdate = callback;
                                         }
-                                        else{
-                                            if (event === "keypress"){
+                                        else {
+                                            if (event === "keypress") {
                                                 callbacks.keypress = callback;
                                             }
-                                            else{
-                                                if (event === "mouseclick"){
+                                            else {
+                                                if (event === "mouseclick") {
                                                     callbacks.mouseclick = callback;
                                                 }
-                                                else{
-                                                    if (event === "mousescroll"){
+                                                else {
+                                                    if (event === "mousescroll") {
                                                         callbacks.mousescroll = callback;
                                                     }
-                                                    else{
-                                                        if (event === "keyrelease"){
+                                                    else {
+                                                        if (event === "keyrelease") {
                                                             callbacks.keyrelease = callback;
                                                         }
-                                                        else{
-                                                            if (event === "imageload"){
+                                                        else {
+                                                            if (event === "imageload") {
                                                                 callbacks.imageloaded = callback;
                                                             }
-                                                            else{
-                                                                if (event === "error"){
+                                                            else {
+                                                                if (event === "error") {
                                                                     callbacks.error = callback;
                                                                 }
-                                                                else{
-                                                                    if (event === "imageunload"){
+                                                                else {
+                                                                    if (event === "imageunload") {
                                                                         callbacks.imageunloaded = callback
                                                                     }
-                                                                    else{
-                                                                        return 1;
+                                                                    else {
+                                                                        if (event === "framerender") {
+                                                                            callbacks.framerender = callback
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -572,12 +586,12 @@ module.exports = {
                                 }
                             }
                         }
-                        client.onclose(function(){
+                        client.onclose(function () {
                             callbacks.close();
                             gameclosed = true;
                         })
                         canvas.loadImage("", "4ce2121e17989392f699ada68a9bc565")
-                        await new Promise(function(resolve){setTimeout(resolve, 100)})
+                        await new Promise(function (resolve) { setTimeout(resolve, 100) })
 
                         var cpheight = height;
                         var cpwidth = width;
@@ -708,11 +722,11 @@ module.exports = {
                             },
                             "clear": function (x, y, width, height, rotation) {
                                 //If no argument clear whole screen
-                                if (x == null && y == null && width == null && height == null){
+                                if (x == null && y == null && width == null && height == null) {
                                     toRender.push(canvas.get.clear());
                                     return;
                                 }
-                                if (rotation == null){
+                                if (rotation == null) {
                                     rotation = 0;
                                 }
                                 if (!(typeof x === "number" && typeof y === "number" && typeof width === "number" && typeof height === "number")) {
@@ -726,8 +740,8 @@ module.exports = {
                                 }
                                 toRender.push(canvas.get.clearZone(x, y, width, height, rotation));
                             },
-                            "image": function(id, x, y, width, height, rotation){
-                                if (rotation == null){
+                            "image": function (id, x, y, width, height, rotation) {
+                                if (rotation == null) {
                                     rotation = 0;
                                 }
                                 if (!(typeof id === "string" && typeof x === "number" && typeof y === "number" && typeof width === "number" && typeof height === "number")) {
@@ -741,11 +755,11 @@ module.exports = {
                                 }
                                 toRender.push(canvas.get.setImage(id, x, y, width, height, rotation));
                             },
-                            "loadImage": async function(image, id){
-                                try{
+                            "loadImage": async function (image, id) {
+                                try {
                                     image = image.toString("base64");
                                 }
-                                catch (error){
+                                catch (error) {
                                     throw JSON.stringify({
                                         "exit_code": 1,
                                         "data": {
@@ -756,7 +770,7 @@ module.exports = {
                                     }, null, 4)
                                 }
                                 var result = await canvas.loadImage(image, id);
-                                if (result === 1){
+                                if (result === 1) {
                                     throw JSON.stringify({
                                         "exit_code": result,
                                         "data": {
@@ -767,9 +781,9 @@ module.exports = {
                                     }, null, 4)
                                 }
                             },
-                            "unloadImage": function(id){
+                            "unloadImage": function (id) {
                                 var result = canvas.unloadImage(id);
-                                if (result === 1){
+                                if (result === 1) {
                                     throw JSON.stringify({
                                         "exit_code": result,
                                         "data": {
@@ -780,8 +794,8 @@ module.exports = {
                                     }, null, 4)
                                 }
                             },
-                            "on": function(event, callback){
-                                if (!(typeof event === "string")){
+                            "on": function (event, callback) {
+                                if (!(typeof event === "string")) {
                                     throw JSON.stringify({
                                         "exit_code": 1,
                                         "data": {
@@ -792,11 +806,11 @@ module.exports = {
                                         }
                                     }, null, 4)
                                 }
-                                if (!(typeof callback === "function")){
+                                if (!(typeof callback === "function")) {
                                     throw JSON.stringify({
                                         "exit_code": 1,
                                         "data": {
-                                            "message": "Error while setting callback for event \""  + `${event}` + "\"",
+                                            "message": "Error while setting callback for event \"" + `${event}` + "\"",
                                             "problem": "Callback isn't a function",
                                             "event": `${event}`,
                                             "callback": `${callback}`
@@ -804,7 +818,7 @@ module.exports = {
                                     }, null, 4)
                                 }
                                 var result = canvas.on(event, callback);
-                                if (result === 1){
+                                if (result === 1) {
                                     throw JSON.stringify({
                                         "exit_code": result,
                                         "data": {
@@ -816,60 +830,106 @@ module.exports = {
                                     }, null, 4)
                                 }
                             },
-                            "renderFrame": function(){
+                            "renderFrame": function () {
                                 canvas.multipleInstructions([[canvas.get.clear()].concat(toRender)]);
                                 toRender = [];
                             },
-                            "close": function(){
+                            "close": function () {
                                 canvas.close();
+                            },
+                            "setWindowName": function (name) {
+                                if (!(typeof name === "string")) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while setting window name.",
+                                            "problem": "Window name is not a string.",
+                                            "windowName": `${name}`
+                                        }
+                                    })
+                                }
+                                //If "" or only spaces throw the same error
+                                if (name === "") {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while setting window name.",
+                                            "problem": "Window name is empty.",
+                                            "windowName": `${name}`
+                                        }
+                                    })
+                                }
+                                var onlyspaces = true;
+                                var index = 0;
+                                while (index < name.length) {
+                                    var char = name[index]
+                                    if (!(char === " ")) {
+                                        onlyspaces = false
+                                        index = undefined;
+                                        break;
+                                    }
+                                    index += 1;
+                                }
+                                if (onlyspaces) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while setting window name.",
+                                            "problem": "Window name contains only spaces.",
+                                            "windowName": `${name}`
+                                        }
+                                    })
+                                }
+                                //Everything is ok
+                                canvas.setTitle(name)
                             }
                         }
                         callback(canvasApi)
                     }
                 }
-                else{
-                    if (clients === 2){
+                else {
+                    if (clients === 2) {
                         var initialSizeUpdate = true;
-                        client.onmessage(function(data){
+                        client.onmessage(function (data) {
                             data = JSON.parse(data);
-                            if (data.type === "sizeupdate"){
+                            if (data.type === "sizeupdate") {
                                 width = data.data.width;
                                 height = data.data.height;
                                 cpheight = height;
                                 cpwidth = width;
-                                if (initialSizeUpdate === true){
+                                if (initialSizeUpdate === true) {
                                     initialSizeUpdate = false;
                                     return;
                                 }
                                 callbacks.sizeUpdate(data.data);
                             }
-                            else{
-                                if (data.type === "mouseposupdate"){
+                            else {
+                                if (data.type === "mouseposupdate") {
                                     callbacks.mouseposupdate(data.data);
                                 }
-                                else{
-                                    if (data.type === "keypress"){
+                                else {
+                                    if (data.type === "keypress") {
                                         callbacks.keypress(data.data);
                                     }
-                                    else{
-                                        if (data.type === "mouseclick"){
+                                    else {
+                                        if (data.type === "mouseclick") {
                                             callbacks.mouseclick(data.data);
                                         }
-                                        else{
-                                            if (data.type === "mousescroll"){
+                                        else {
+                                            if (data.type === "mousescroll") {
                                                 callbacks.mousescroll(data.data);
                                             }
-                                            else{
-                                                if (data.type === "keyrelease"){
+                                            else {
+                                                if (data.type === "keyrelease") {
                                                     callbacks.keyrelease(data.data);
                                                 }
-                                                else{
-                                                    if (data.type === "imageLoaded"){
+                                                else {
+                                                    if (data.type === "imageLoaded") {
                                                         loadedImages.push(data.data.id);
                                                         callbacks.imageloaded(data.data.id);
                                                     }
-                                                    else{
-                                                        if (data.type === "errorLoadingImage"){
+                                                    else {
+                                                        if (data.type === "errorLoadingImage") {
                                                             errorloadingImage.push(data.data.id);
                                                             callbacks.error({
                                                                 "exit_code": 1,
@@ -880,8 +940,8 @@ module.exports = {
                                                                 }
                                                             });
                                                         }
-                                                        else{
-                                                            if (data.type === "errorDrawingImage"){
+                                                        else {
+                                                            if (data.type === "errorDrawingImage") {
                                                                 callbacks.error({
                                                                     "exit_code": 1,
                                                                     "data": {
@@ -891,12 +951,12 @@ module.exports = {
                                                                     }
                                                                 });
                                                             }
-                                                            else{
-                                                                if (data.type === "imageUnloaded"){
+                                                            else {
+                                                                if (data.type === "imageUnloaded") {
                                                                     //Remove from loaded images
                                                                     var index = 0;
-                                                                    while (index < loadedImages.length){
-                                                                        if (loadedImages[index] === data.data.id){
+                                                                    while (index < loadedImages.length) {
+                                                                        if (loadedImages[index] === data.data.id) {
                                                                             loadedImages.splice(index, 1);
                                                                             break;
                                                                         }
@@ -904,8 +964,8 @@ module.exports = {
                                                                     }
                                                                     callbacks.imageunloaded(data.data.id)
                                                                 }
-                                                                else{
-                                                                    if (data.type === "errorUnloadingImage"){
+                                                                else {
+                                                                    if (data.type === "errorUnloadingImage") {
                                                                         callbacks.error({
                                                                             "exit_code": 1,
                                                                             "data": {
@@ -914,6 +974,11 @@ module.exports = {
                                                                                 "id": data.data.id
                                                                             }
                                                                         });
+                                                                    }
+                                                                    else {
+                                                                        if (data.type === "framerendered") {
+                                                                            callbacks.framerender()
+                                                                        }
                                                                     }
                                                                 }
                                                             }

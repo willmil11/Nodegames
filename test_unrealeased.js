@@ -59,6 +59,21 @@ nodegames.newGame(async function (game) {
     game.on("imageunload", function (id) {
         console.log("Image unloaded: " + id);
     });
+    var frameCount = 0;
+
+    game.on("framerender", function () {
+        frameCount += 1;
+    });
+
+    setInterval(function () {
+        var fps = frameCount;
+        console.log(`FPS: ${fps}`);
+        frameCount = 0;
+    }, 1000);
+
+    setTimeout(function(){
+        game.setWindowName("Now titled")
+    }, 5000)
 
     //Draw a rgb(80, 255, 80) square rotating in the middle of the screen
     //Close game after 1000 5 degrees rotations
