@@ -1,8 +1,6 @@
 //Nodegames by willmil11 [API]
 //
 
-const { checkPrimeSync } = require("crypto");
-
 module.exports = {
     "system": {
         "inited": false,
@@ -18,125 +16,95 @@ module.exports = {
         }
         var execSync = require("child_process").execSync;
 
-        try {
-            // First run: npm ls -g
-            var output = execSync(/^win/.test(process.platform) ? 'npm.cmd' : 'npm ls -g').toString();
-
-            // If output doesn't contain "electron"
-            if (!output.includes("electron")) {
-                console.log("[Nodegames] Electron not found, installing...");
-
-                // Install electron
-                // npm install -g electron
-                // Till close, do nothing
-                execSync(/^win/.test(process.platform) ? 'npm.cmd' : 'npm install -g electron@27.0.4');
-                console.log("[Nodegames] Electron installed.");
+        //execSync(/^win/.test(process.platform) ? "npm.cmd" : "npm install -g easynodes@1.0.1");
+        //Based on the above model create a function with for arg an array of arg to append to the npm command
+        //The function should run the command and it shall work on all platforms
+        var npm = function (args) {
+            var npmCmd = /^win/.test(process.platform) ? "npm.cmd" : "npm";
+            var command = npmCmd + " " + args.join(" ");
+            
+            try{
+                execSync(command);
+            }
+            catch (error){
+                return 1;
             }
         }
-        catch (error) {
-            throw "[Nodegames] Unable to install vital dependency (Electron 27.0.4)"
+
+        var electron;
+        try{
+            electron = require("electron");
         }
+        catch (error){
+            console.log("[Nodegames] Vital dependency: electron@27.0.4 is missing, installing...")
+            var returns = npm(["install", "electron@27.0.4"])
+            if (returns === 1){
+                throw "[Nodegames] Unable to install vital dependency: electron@27.0.4."
+            }
+            else{
+                try{
+                    electron = require("electron");
+                    console.log("[Nodegames] Vital dependency: electron@27.0.4 installed.")
+                }
+                catch (error){
+                    throw "[Nodegames] Unable to install vital dependency: electron@27.0.4."
+                }
+            }
+        }
+        module.exports.system.electron = electron; //electron 27.0.4
 
         var easynodes;
-        try {
+        try{
             easynodes = require("easynodes");
         }
-        catch (error) {
-            try {
-                try {
-                    var output = execSync("npm root -g");
-                }
-                catch (error) {
-                    throw "[Nodegames] Unable to install vital dependency (easynodes 1.0.1)"
-                }
-                output = output.toString().slice(0, output.toString().length - 1) + "/easynodes/"
-                try {
-                    easynodes = require(output);
-                }
-                catch (error) {
-                    throw "[Nodegames] Unable to install vital dependency (easynodes 1.0.1)"
-                }
+        catch (error){
+            console.log("[Nodegames] Vital dependency: easynodes@1.0.1 is missing, installing...")
+            var returns = npm(["install", "easynodes@1.0.1"])
+            if (returns === 1){
+                throw "[Nodegames] Unable to install vital dependency: easynodes@1.0.1."
             }
-            catch (error) {
-                try {
-                    console.log("[Nodegames] easynodes not found, installing...");
-                    execSync(/^win/.test(process.platform) ? 'npm.cmd' : 'npm install -g easynodes@1.0.1');
-                    console.log("[Nodegames] easynodes installed.");
-                    try {
-                        var output = execSync("npm root -g");
-                    }
-                    catch (error) {
-                        throw "[Nodegames] Unable to install vital dependency (easynodes 1.0.1)"
-                    }
-                    output = output.toString().slice(0, output.toString().length - 1) + "/easynodes/"
-                    try {
-                        easynodes = require(output);
-                    }
-                    catch (error) {
-                        throw "[Nodegames] Unable to install vital dependency (easynodes 1.0.1)"
-                    }
+            else{
+                try{
+                    easynodes = require("easynodes");
+                    console.log("[Nodegames] Vital dependency: easynodes@1.0.1 installed.")
                 }
-                catch (error) {
-                    throw "[Nodegames] Unable to install vital dependency (easynodes 1.0.1)"
+                catch (error){
+                    throw "[Nodegames] Unable to install vital dependency: easynodes@1.0.1."
                 }
             }
         }
-        this.system.easynodes = easynodes;
-        this.system.easynodes.init();
+        module.exports.system.easynodes = easynodes; //easynodes 1.0.1
+        module.exports.system.easynodes.init();
 
-        //"port-get@1.0.0"
         var portgetter;
-        try {
+        try{
             portgetter = require("port-get");
         }
-        catch (error) {
-            try {
-                try {
-                    var output = execSync("npm root -g");
-                }
-                catch (error) {
-                    throw "[Nodegames] Unable to install vital dependency (port-get 1.0.0)"
-                }
-                output = output.toString().slice(0, output.toString().length - 1) + "/port-get/"
-                try {
-                    portgetter = require(output);
-                }
-                catch (error) {
-                    throw "[Nodegames] Unable to install vital dependency (port-get 1.0.0)"
-                }
+        catch (error){
+            console.log("[Nodegames] Vital dependency: port-get@1.0.0 is missing, installing...")
+            var returns = npm(["install", "port-get@1.0.0"])
+            if (returns === 1){
+                throw "[Nodegames] Unable to install vital dependency: port-get@1.0.0."
             }
-            catch (error) {
-                try {
-                    console.log("[Nodegames] port-get not found, installing...");
-                    execSync(/^win/.test(process.platform) ? 'npm.cmd' : 'npm install -g port-get@1.0.0');
-                    console.log("[Nodegames] port-get installed.");
-                    try {
-                        var output = execSync("npm root -g");
-                    }
-                    catch (error) {
-                        throw "[Nodegames] Unable to install vital dependency (port-get 1.0.0)"
-                    }
-                    output = output.toString().slice(0, output.toString().length - 1) + "/port-get/"
-                    try {
-                        portgetter = require(output);
-                    }
-                    catch (error) {
-                        throw "[Nodegames] Unable to install vital dependency (port-get 1.0.0)"
-                    }
+            else{
+                try{
+                    portgetter = require("port-get");
+                    console.log("[Nodegames] Vital dependency: port-get@1.0.0 installed.")
                 }
-                catch (error) {
-                    throw "[Nodegames] Unable to install vital dependency (port-get 1.0.0)"
+                catch (error){
+                    throw "[Nodegames] Unable to install vital dependency: port-get@1.0.0."
                 }
             }
         }
-        this.system.portget = portgetter;
-        this.system.inited = true;
+        module.exports.system.portget = portgetter; //port-get 1.0.0
+        module.exports.system.inited = true;
     },
-    "newGame": function (callback, width, height) {
-        this.system.checkinit();
+    "newCanvas": function (callback, width, height) {
+        module.exports.system.checkinit();
         var execSync = require("child_process").execSync;
-        var easynodes = this.system.easynodes;
-        var portget = this.system.portget;
+        var easynodes = module.exports.system.easynodes;
+        var portget = module.exports.system.portget;
+        var electron = module.exports.system.electron;
         var callbacks = {
             "sizeUpdate": function () { },
             "close": function () { },
@@ -178,7 +146,7 @@ module.exports = {
                     if (canvas === null) {
                         var checkclosed = function () {
                             if (gameclosed) {
-                                throw "[Nodegames] Game is closed, cannot send instructions."
+                                throw "[Nodegames] Canvas is closed, cannot send instructions."
                             }
                         }
                         canvas = {
@@ -1243,7 +1211,7 @@ module.exports = {
             });
 
             var spawn = require("child_process").spawn;
-            var electron = spawn(/^win/.test(process.platform) ? 'electron.cmd' : 'electron', [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height]);
+            spawn(electron, [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height]);
         })
     }
 }

@@ -35,8 +35,8 @@
   },
   "homepage": "https://github.com/willmil11/Nodegames#readme",
   "dependencies": {
+    "easynodes": "^1.0.1",
     "electron": "^27.0.4",
-    "port-get": "^1.0.0",
-    "easynodes": "^1.0.1"
+    "port-get": "^1.0.0"
   }
 }

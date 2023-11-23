@@ -15,20 +15,7 @@
         var sendKeypress = function () { }
         var kdcooldown = false;
         window.onkeydown = function (event) {
-            //Block all way to open dev tool
-            //Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
-            // if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.shiftKey && event.keyCode === 74) || (event.ctrlKey && event.shiftKey && event.keyCode === 67)){
-            //     event.preventDefault();
-            // }
-            //Disable all ways to reload
-            //Block F5, Ctrl+R, Ctrl+Shift+R
-            if (event.keyCode === 116 || (event.ctrlKey && event.keyCode === 82) || (event.ctrlKey && event.shiftKey && event.keyCode === 82)) {
-                event.preventDefault();
-            }
-            //Cancel control + w
-            if (event.ctrlKey && event.keyCode === 87) {
-                event.preventDefault();
-            }
+            event.preventDefault();
             if (kdcooldown) {
                 return;
             }

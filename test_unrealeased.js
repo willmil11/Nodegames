@@ -7,7 +7,7 @@ console.time("Init module")
 nodegames.init();
 console.timeEnd("Init module")
 
-console.time("Start game");
+console.time("Start canvas");
 var mouseX = 0;
 var mouseY = 0;
 var width = 800;
@@ -17,20 +17,20 @@ var squareY = 1;
 var img = require("fs").readFileSync("sample.png")
 var img2 = require("fs").readFileSync("sample2.png")
 var sound = require("fs").readFileSync("sample.mp3")
-nodegames.newGame(async function (game) {
-    console.timeEnd("Start game");
+nodegames.newCanvas(async function (canvas) {
+    console.timeEnd("Start canvas");
     console.timeEnd("Total");
 
-    game.on("sizeUpdate", function (event) {
+    canvas.on("sizeUpdate", function (event) {
         width = event.width;
         height = event.height;
         console.log("Size update", event);
     });
-    game.on("close", function () {
+    canvas.on("close", function () {
         require("process").exit(0);
     })
     var index = 0;
-    game.on("mousePositionUpdate", function (event) {
+    canvas.on("mousePositionUpdate", function (event) {
         console.log("Mouse position update", event);
         if (index < 1000) {
             squareX = event.x;
@@ -39,39 +39,39 @@ nodegames.newGame(async function (game) {
         mouseX = event.x
         mouseY = event.y
     })
-    game.on("keypress", function (event) {
+    canvas.on("keypress", function (event) {
         console.log("Key press", event);
     })
-    game.on("mouseclick", function (event) {
+    canvas.on("mouseclick", function (event) {
         console.log("Mouse click", event);
     })
-    game.on("mousescroll", function (event) {
+    canvas.on("mousescroll", function (event) {
         console.log("Mouse scroll", event);
     });
-    game.on("keyrelease", function (event) {
+    canvas.on("keyrelease", function (event) {
         console.log("Key release", event);
     });
-    game.on("imageload", function (id) {
+    canvas.on("imageload", function (id) {
         console.log("Image loaded: " + id);
     })
-    game.on("error", function (error) {
+    canvas.on("error", function (error) {
         console.log("Error", error);
     })
-    game.on("imageunload", function (id) {
+    canvas.on("imageunload", function (id) {
         console.log("Image unloaded: " + id);
     });
     var frameCount = 0;
 
-    game.on("framerender", function () {
+    canvas.on("framerender", function () {
         frameCount += 1;
     });
-    game.on("soundload", function (id) {
+    canvas.on("soundload", function (id) {
         console.log("Sound loaded: " + id);
     });
-    game.on("soundunload", function (id) {
+    canvas.on("soundunload", function (id) {
         console.log("Sound played: " + id);
     });
-    game.on("soundstop", function(id){
+    canvas.on("soundstop", function(id){
         console.log("Sound stopped: " + id);
     })
 
@@ -82,46 +82,46 @@ nodegames.newGame(async function (game) {
     }, 1000);
 
     setTimeout(function(){
-        game.setWindowName("Now titled")
+        canvas.setWindowName("Now titled")
     }, 5000)
 
     //Draw a rgb(80, 255, 80) square rotating in the middle of the screen
-    //Close game after 1000 5 degrees rotations
-    await game.loadImage(img, "id")
-    await game.loadImage(img2, "id2");
-    await game.loadSound(sound, "sound");
+    //Close canvas after 1000 5 degrees rotations
+    await canvas.loadImage(img, "id")
+    await canvas.loadImage(img2, "id2");
+    await canvas.loadSound(sound, "sound");
     setTimeout(function () {
-        game.playSound("sound", true);
+        canvas.playSound("sound", true);
         setTimeout(function(){
-            game.stopSound("sound");
+            canvas.stopSound("sound");
             setTimeout(function(){
-                game.playSound("sound", false);
+                canvas.playSound("sound", false);
             }, 3000)
         }, 7000)
     }, 3000);
     var rotation = 0;
     while (true) {
-        game.image("id", squareX, squareY, width / 10, width / 10, rotation)
-        game.image("id2", squareX - width / 8, squareY, width / 10, width / 10, rotation)
-        game.renderFrame()
+        canvas.image("id", squareX, squareY, width / 10, width / 10, rotation)
+        canvas.image("id2", squareX - width / 8, squareY, width / 10, width / 10, rotation)
+        canvas.renderFrame()
         rotation += 5;
         if (rotation === 360) {
             rotation = 0;
         }
         index += 1;
         if (index === 1000) {
-            game.unloadImage("id");
+            canvas.unloadImage("id");
         }
         if (index > 1000) {
             squareX = mouseX + width / 8
         }
         if (index === 10000) {
-            game.close();
+            canvas.close();
         }
         await new Promise(resolve => setTimeout(resolve, 10));
     }
 }, width, height);
 
-//Later the game object will work with virtual objects rendered when the renderframe method is called
-//The renderframe method will use multipleInstructions to render all the objects in the game to generate a frame
+//Later the canvas object will work with virtual objects rendered when the renderframe method is called
+//The renderframe method will use multipleInstructions to render all the objects in the canvas to generate a frame
 //The maximum stable theorical framerate would be a frame each 10ms (100fps) it seems like to be the stable websocket limit
