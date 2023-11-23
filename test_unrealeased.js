@@ -121,7 +121,3 @@ nodegames.newCanvas(async function (canvas) {
         await new Promise(resolve => setTimeout(resolve, 10));
     }
 }, width, height);
-
-//Later the canvas object will work with virtual objects rendered when the renderframe method is called
-//The renderframe method will use multipleInstructions to render all the objects in the canvas to generate a frame
-//The maximum stable theorical framerate would be a frame each 10ms (100fps) it seems like to be the stable websocket limit
