@@ -148,11 +148,16 @@ module.exports = {
             "imageloaded": function () { },
             "error": function () { },
             "imageunloaded": function () { },
-            "framerender": function () { }
+            "framerender": function () { },
+            "soundloaded": function () { },
+            "soundunloaded": function () { },
+            "soundstopped": function () { }
         }
         var loadedImages = [];
         var errorloadingImage = [];
         var errordrawingImage = [];
+        var loadedSounds = [];
+        var errorloadingSound = [];
 
         var port;
         portget().then(function (out) {
@@ -521,6 +526,76 @@ module.exports = {
                                     index += 1;
                                 }
                             },
+                            "loadSound": async function (base64, id) {
+                                checkclosed();
+                                client.send(JSON.stringify({
+                                    "type": "loadSound",
+                                    "data": {
+                                        "id": id,
+                                        "base64": base64
+                                    }
+                                }))
+                                while (loadedSounds.includes(id) === false) {
+                                    await new Promise(function (resolve) { setTimeout(resolve, 10) });
+                                    var index = 0;
+                                    while (index < errorloadingSound.length) {
+                                        if (errorloadingSound[index] === id) {
+                                            errorloadingSound.splice(index, 1);
+                                            return 1;
+                                        }
+                                        index += 1;
+                                    }
+                                }
+                            },
+                            "unloadSound": function (id) {
+                                checkclosed();
+                                if (loadedSounds.includes(id) === false) {
+                                    return 1;
+                                }
+                                client.send(JSON.stringify({
+                                    "type": "unloadSound",
+                                    "data": {
+                                        "id": id
+                                    }
+                                }))
+                                //remove from loadedSounds
+                                var index = 0;
+                                while (index < loadedSounds.length) {
+                                    if (loadedSounds[index] === id) {
+                                        loadedSounds.splice(index, 1);
+                                        return 0;
+                                    }
+                                    index += 1;
+                                }
+                            },
+                            "playSound": function (id, loop) {
+                                checkclosed();
+                                if (loadedSounds.includes(id) === false) {
+                                    return 1;
+                                }
+                                if (loop == null) {
+                                    loop = false;
+                                }
+                                client.send(JSON.stringify({
+                                    "type": "playSound",
+                                    "data": {
+                                        "id": id,
+                                        "loop": loop
+                                    }
+                                }))
+                            },
+                            "stopSound": function (id) {
+                                checkclosed();
+                                if (loadedSounds.includes(id) === false) {
+                                    return 1;
+                                }
+                                client.send(JSON.stringify({
+                                    "type": "stopSound",
+                                    "data": {
+                                        "id": id
+                                    }
+                                }))
+                            },
                             "setTitle": function (title) {
                                 checkclosed();
                                 client.send(JSON.stringify({
@@ -573,6 +648,24 @@ module.exports = {
                                                                     else {
                                                                         if (event === "framerender") {
                                                                             callbacks.framerender = callback
+                                                                        }
+                                                                        else{
+                                                                            if (event === "soundload") {
+                                                                                callbacks.soundloaded = callback
+                                                                            }
+                                                                            else{
+                                                                                if (event === "soundunload") {
+                                                                                    callbacks.soundunloaded = callback
+                                                                                }
+                                                                                else{
+                                                                                    if (event === "soundstop") {
+                                                                                        callbacks.soundstopped = callback
+                                                                                    }
+                                                                                    else{
+                                                                                        return 1;
+                                                                                    }
+                                                                                }
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -837,6 +930,86 @@ module.exports = {
                             "close": function () {
                                 canvas.close();
                             },
+                            "loadSound": async function (sound, id) {
+                                try {
+                                    sound = sound.toString("base64");
+                                }
+                                catch (error) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error loading sound",
+                                            "problem": "Invalid sound data",
+                                            "id": id
+                                        }
+                                    }, null, 4)
+                                }
+                                var result = await canvas.loadSound(sound, id);
+                                if (result === 1) {
+                                    throw JSON.stringify({
+                                        "exit_code": result,
+                                        "data": {
+                                            "message": "Error loading sound",
+                                            "problem": "Sound data is probably invalid.",
+                                            "id": id
+                                        }
+                                    }, null, 4)
+                                }
+                            },
+                            "unloadSound": function (id) {
+                                var result = canvas.unloadSound(id);
+                                if (result === 1) {
+                                    throw JSON.stringify({
+                                        "exit_code": result,
+                                        "data": {
+                                            "message": "Error unloading sound",
+                                            "problem": "Sound is probably not loaded.",
+                                            "id": id
+                                        }
+                                    }, null, 4)
+                                }
+                            },
+                            "playSound": function (id, loop) {
+                                if (loop == null) {
+                                    loop = false;
+                                }
+                                if (!(typeof loop === "boolean")) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while playing sound",
+                                            "problem": "Loop is not a boolean",
+                                            "id": id,
+                                            "loop": `${loop}`
+                                        }
+                                    }, null, 4)
+                                }
+                                var result = canvas.playSound(id, loop);
+                                if (result === 1) {
+                                    throw JSON.stringify({
+                                        "exit_code": result,
+                                        "data": {
+                                            "message": "Error while playing sound",
+                                            "problem": "Sound is probably not loaded.",
+                                            "id": id,
+                                            "loop": `${loop}`
+                                        }
+                                    }, null, 4)
+                                }
+                            },
+                            "stopSound": function (id) {
+                                var result = canvas.stopSound(id);
+                                if (result === 1) {
+                                    throw JSON.stringify({
+                                        "exit_code": result,
+                                        "data": {
+                                            "message": "Error while stopping sound",
+                                            "problem": "Sound is probably not loaded.",
+                                            "id": id
+                                        }
+                                    }, null, 4)
+                                }
+                            },
                             "setWindowName": function (name) {
                                 if (!(typeof name === "string")) {
                                     throw JSON.stringify({
@@ -978,6 +1151,80 @@ module.exports = {
                                                                     else {
                                                                         if (data.type === "framerendered") {
                                                                             callbacks.framerender()
+                                                                        }
+                                                                        else{
+                                                                            if (data.type === "errorLoadingSound") {
+                                                                                errorloadingSound.push(data.data.id);
+                                                                                callbacks.error({
+                                                                                    "exit_code": 1,
+                                                                                    "data": {
+                                                                                        "message": "Error loading sound with id \"" + data.data.id + "\"",
+                                                                                        "problem": "Sound data is probably invalid",
+                                                                                        "id": data.data.id
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            else{
+                                                                                if (data.type === "soundLoaded") {
+                                                                                    loadedSounds.push(data.data.id);
+                                                                                    callbacks.soundloaded(data.data.id);
+                                                                                }
+                                                                                else{
+                                                                                    if (data.type === "errorUnloadingSound") {
+                                                                                        callbacks.error({
+                                                                                            "exit_code": 1,
+                                                                                            "data": {
+                                                                                                "message": "Error unloading sound with id \"" + data.data.id + "\"",
+                                                                                                "problem": "Sound is probably not loaded",
+                                                                                                "id": data.data.id
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                    else{
+                                                                                        if (data.type === "soundUnloaded") {
+                                                                                            //Remove from loaded sounds
+                                                                                            var index = 0;
+                                                                                            while (index < loadedSounds.length) {
+                                                                                                if (loadedSounds[index] === data.data.id) {
+                                                                                                    loadedSounds.splice(index, 1);
+                                                                                                    break;
+                                                                                                }
+                                                                                                index += 1;
+                                                                                            }
+                                                                                            callbacks.soundunloaded(data.data.id)
+                                                                                        }
+                                                                                        else{
+                                                                                            if (data.type === "errorPlayingSound") {
+                                                                                                callbacks.error({
+                                                                                                    "exit_code": 1,
+                                                                                                    "data": {
+                                                                                                        "message": "Error playing sound with id \"" + data.data.id + "\"",
+                                                                                                        "problem": "Sound is probably not loaded",
+                                                                                                        "id": data.data.id
+                                                                                                    }
+                                                                                                });
+                                                                                            }
+                                                                                            else{
+                                                                                                if (data.type === "errorStoppingSound"){
+                                                                                                    callbacks.error({
+                                                                                                        "exit_code": 1,
+                                                                                                        "data": {
+                                                                                                            "message": "Error stopping sound with id \"" + data.data.id + "\"",
+                                                                                                            "problem": "Sound is probably not loaded",
+                                                                                                            "id": data.data.id
+                                                                                                        }
+                                                                                                    });
+                                                                                                }
+                                                                                                else{
+                                                                                                    if (data.type === "soundStopped"){
+                                                                                                        callbacks.soundstopped(data.data.id)
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
                                                                         }
                                                                     }
                                                                 }

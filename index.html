@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Untitled</title>
-    </head>
-    <body>
-        <canvas id="renderer"></canvas>
-    </body>
+
+<head>
+    <title>Untitled</title>
+</head>
+
+<body>
+    <canvas id="renderer"></canvas>
+</body>
+
 </html>
 <script>
     (async function () {
@@ -238,6 +241,7 @@
             }
             var ctx = rendererelem.getContext("2d");
             var images = {};
+            var sounds = {};
             console.log("[Nodegames] Connected and ready.")
             ws.onclose = function () {
                 console.log("[Nodegames] Connection closed.")
@@ -553,13 +557,19 @@
                                                                     blob = b64toBlob(base64, "image/png");
                                                                 }
                                                                 catch (error) {
-                                                                    ws2.send(JSON.stringify({
-                                                                        "type": "errorLoadingImage",
-                                                                        "data": {
-                                                                            "id": id
-                                                                        }
-                                                                    }))
-                                                                    return;
+                                                                    //Try jpeg
+                                                                    try {
+                                                                        blob = b64toBlob(base64, "image/jpeg");
+                                                                    }
+                                                                    catch (error) {
+                                                                        ws2.send(JSON.stringify({
+                                                                            "type": "errorLoadingImage",
+                                                                            "data": {
+                                                                                "id": id
+                                                                            }
+                                                                        }))
+                                                                        return;
+                                                                    }
                                                                 }
                                                                 var url;
                                                                 try {
@@ -658,6 +668,165 @@
                                                                     else {
                                                                         if (data.type === "setTitle") {
                                                                             document.title = data.data.title
+                                                                        }
+                                                                        else {
+                                                                            if (data.type === "loadSound") {
+                                                                                var id = data.data.id
+                                                                                var base64 = data.data.base64
+                                                                                var b64toBlob = function (b64Data, contentType = "", sliceSize = 512) {
+                                                                                    var byteCharacters;
+                                                                                    try {
+                                                                                        byteCharacters = atob(b64Data);
+                                                                                    }
+                                                                                    catch (error) {
+                                                                                        ws2.send(JSON.stringify({
+                                                                                            "type": "errorLoadingSound",
+                                                                                            "data": {
+                                                                                                "id": id
+                                                                                            }
+                                                                                        }))
+                                                                                        return;
+                                                                                    }
+                                                                                    var byteArrays = [];
+
+                                                                                    var offset = 0;
+                                                                                    while (offset < byteCharacters.length) {
+                                                                                        const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                                                                                        const byteNumbers = new Array(slice.length);
+                                                                                        var i = 0;
+                                                                                        while (i < slice.length) {
+                                                                                            byteNumbers[i] = slice.charCodeAt(i);
+                                                                                            i += 1;
+                                                                                        }
+
+                                                                                        var byteArray = new Uint8Array(byteNumbers);
+                                                                                        byteArrays.push(byteArray);
+                                                                                        offset += sliceSize
+                                                                                    }
+
+                                                                                    const blob = new Blob(byteArrays, { type: contentType });
+                                                                                    return blob;
+                                                                                }
+                                                                                var blob;
+                                                                                //mp3
+                                                                                try {
+                                                                                    blob = b64toBlob(base64, "audio/mpeg");
+                                                                                }
+                                                                                catch (error) {
+                                                                                    //wav
+                                                                                    try {
+                                                                                        blob = b64toBlob(base64, "audio/wav");
+                                                                                    }
+                                                                                    catch (error) {
+                                                                                        ws2.send(JSON.stringify({
+                                                                                            "type": "errorLoadingSound",
+                                                                                            "data": {
+                                                                                                "id": id
+                                                                                            }
+                                                                                        }))
+                                                                                        return;
+                                                                                    }
+                                                                                }
+                                                                                var url;
+                                                                                try {
+                                                                                    url = URL.createObjectURL(blob);
+                                                                                }
+                                                                                catch (error) {
+                                                                                    ws2.send(JSON.stringify({
+                                                                                        "type": "errorLoadingSound",
+                                                                                        "data": {
+                                                                                            "id": id
+                                                                                        }
+                                                                                    }))
+                                                                                    return;
+                                                                                }
+                                                                                var audio = new Audio();
+                                                                                audio.oncanplaythrough = function () {
+                                                                                    sounds[id] = audio;
+                                                                                    ws2.send(JSON.stringify({
+                                                                                        "type": "soundLoaded",
+                                                                                        "data": {
+                                                                                            "id": id
+                                                                                        }
+                                                                                    }))
+                                                                                }
+                                                                                audio.src = url;
+                                                                            }
+                                                                            else{
+                                                                                if (data.type === "playSound"){
+                                                                                    var id = data.data.id
+                                                                                    var loop = data.data.loop
+                                                                                    //If sound doesnt exist
+                                                                                    if (sounds[id] == null){
+                                                                                        ws2.send(JSON.stringify({
+                                                                                            "type": "errorPlayingSound",
+                                                                                            "data": {
+                                                                                                "id": id
+                                                                                            }
+                                                                                        }))
+                                                                                        return;
+                                                                                    }
+                                                                                    //If loop is true loop the sound else play it once
+                                                                                    var sound = sounds[id]
+                                                                                    if (loop){
+                                                                                        sound.loop = true
+                                                                                        sound.play()
+                                                                                    }
+                                                                                    else{
+                                                                                        sound.loop = false
+                                                                                        sound.play()
+                                                                                    }
+                                                                                }
+                                                                                else{
+                                                                                    if (data.type === "unloadSound"){
+                                                                                        var id = data.data.id
+                                                                                        //if sound doesnt exist
+                                                                                        if (sounds[id] == null){
+                                                                                            ws2.send(JSON.stringify({
+                                                                                                "type": "errorUnloadingSound",
+                                                                                                "data": {
+                                                                                                    "id": id
+                                                                                                }
+                                                                                            }))
+                                                                                            return;
+                                                                                        }
+                                                                                        //Stop sound from playing
+                                                                                        sounds[id].pause()
+                                                                                        delete sounds[id]
+                                                                                        ws2.send(JSON.stringify({
+                                                                                            "type": "soundUnloaded",
+                                                                                            "data": {
+                                                                                                "id": id
+                                                                                            }
+                                                                                        }))
+                                                                                    }
+                                                                                    else{
+                                                                                        if (data.type === "stopSound"){
+                                                                                            var id = data.data.id
+                                                                                            //If sound doesnt exist
+                                                                                            if (sounds[id] == null){
+                                                                                                ws2.send(JSON.stringify({
+                                                                                                    "type": "errorStoppingSound",
+                                                                                                    "data": {
+                                                                                                        "id": id
+                                                                                                    }
+                                                                                                }))
+                                                                                                return;
+                                                                                            }
+                                                                                            //Stop sound from playing
+                                                                                            sounds[id].pause()
+                                                                                            sounds[id].currentTime = 0
+                                                                                            ws2.send(JSON.stringify({
+                                                                                                "type": "soundStopped",
+                                                                                                "data": {
+                                                                                                    "id": id
+                                                                                                }
+                                                                                            }))
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
                                                                         }
                                                                     }
                                                                 }

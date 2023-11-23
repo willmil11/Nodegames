@@ -16,6 +16,7 @@ var squareX = 1;
 var squareY = 1;
 var img = require("fs").readFileSync("sample.png")
 var img2 = require("fs").readFileSync("sample2.png")
+var sound = require("fs").readFileSync("sample.mp3")
 nodegames.newGame(async function (game) {
     console.timeEnd("Start game");
     console.timeEnd("Total");
@@ -64,6 +65,15 @@ nodegames.newGame(async function (game) {
     game.on("framerender", function () {
         frameCount += 1;
     });
+    game.on("soundload", function (id) {
+        console.log("Sound loaded: " + id);
+    });
+    game.on("soundunload", function (id) {
+        console.log("Sound played: " + id);
+    });
+    game.on("soundstop", function(id){
+        console.log("Sound stopped: " + id);
+    })
 
     setInterval(function () {
         var fps = frameCount;
@@ -79,6 +89,16 @@ nodegames.newGame(async function (game) {
     //Close game after 1000 5 degrees rotations
     await game.loadImage(img, "id")
     await game.loadImage(img2, "id2");
+    await game.loadSound(sound, "sound");
+    setTimeout(function () {
+        game.playSound("sound", true);
+        setTimeout(function(){
+            game.stopSound("sound");
+            setTimeout(function(){
+                game.playSound("sound", false);
+            }, 3000)
+        }, 7000)
+    }, 3000);
     var rotation = 0;
     while (true) {
         game.image("id", squareX, squareY, width / 10, width / 10, rotation)
