@@ -1,3 +1,6 @@
+//TODO: Fix pointerlock and unlock events
+//TODO: Fix error event (pointer lock error part)
+
 console.time("Total");
 console.time("Require module")
 var nodegames = require("./nodegames");
@@ -71,9 +74,23 @@ nodegames.newCanvas(async function (canvas) {
     canvas.on("soundunload", function (id) {
         console.log("Sound played: " + id);
     });
-    canvas.on("soundstop", function(id){
+    canvas.on("soundstop", function (id) {
         console.log("Sound stopped: " + id);
     })
+    canvas.on("pointerlock", function () {
+        console.log("Pointer locked");
+    })
+    canvas.on("pointerunlock", function () {
+        console.log("Pointer unlocked");
+    })
+    canvas.cheats.devtools.enable()
+    setTimeout(function () {
+        canvas.pointer.lock();
+    }, 1000)
+    setTimeout(function () {
+        canvas.pointer.unlock();
+        canvas.cheats.devtools.disable();
+    }, 5000)
 
     setInterval(function () {
         var fps = frameCount;
@@ -81,7 +98,7 @@ nodegames.newCanvas(async function (canvas) {
         frameCount = 0;
     }, 1000);
 
-    setTimeout(function(){
+    setTimeout(function () {
         canvas.setWindowName("Now titled")
     }, 5000)
 
@@ -92,9 +109,9 @@ nodegames.newCanvas(async function (canvas) {
     await canvas.loadSound(sound, "sound");
     setTimeout(function () {
         canvas.playSound("sound", true);
-        setTimeout(function(){
+        setTimeout(function () {
             canvas.stopSound("sound");
-            setTimeout(function(){
+            setTimeout(function () {
                 canvas.playSound("sound", false);
             }, 3000)
         }, 7000)

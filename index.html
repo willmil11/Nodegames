@@ -281,6 +281,30 @@
                     "data": key
                 }))
             }
+            //When pointers locks
+            rendererelem.onpointerlockchange = function () {
+                if (document.pointerLockElement === rendererelem) {
+                    ws2.send(JSON.stringify({
+                        "type": "pointerlock",
+                        "data": {
+                            "locked": true
+                        }
+                    }))
+                }
+                else {
+                    ws2.send(JSON.stringify({
+                        "type": "pointerlock",
+                        "data": {
+                            "locked": false
+                        }
+                    }))
+                }
+            }
+            rendererelem.onpointerlockerror = function () {
+                ws2.send(JSON.stringify({
+                    "type": "pointerlockerror"
+                }))
+            }
             ws.onmessage = function (data) {
                 data = data.data;
                 data = JSON.parse(data);
@@ -740,12 +764,12 @@
                                                                                 }
                                                                                 audio.src = url;
                                                                             }
-                                                                            else{
-                                                                                if (data.type === "playSound"){
+                                                                            else {
+                                                                                if (data.type === "playSound") {
                                                                                     var id = data.data.id
                                                                                     var loop = data.data.loop
                                                                                     //If sound doesnt exist
-                                                                                    if (sounds[id] == null){
+                                                                                    if (sounds[id] == null) {
                                                                                         ws2.send(JSON.stringify({
                                                                                             "type": "errorPlayingSound",
                                                                                             "data": {
@@ -756,20 +780,20 @@
                                                                                     }
                                                                                     //If loop is true loop the sound else play it once
                                                                                     var sound = sounds[id]
-                                                                                    if (loop){
+                                                                                    if (loop) {
                                                                                         sound.loop = true
                                                                                         sound.play()
                                                                                     }
-                                                                                    else{
+                                                                                    else {
                                                                                         sound.loop = false
                                                                                         sound.play()
                                                                                     }
                                                                                 }
-                                                                                else{
-                                                                                    if (data.type === "unloadSound"){
+                                                                                else {
+                                                                                    if (data.type === "unloadSound") {
                                                                                         var id = data.data.id
                                                                                         //if sound doesnt exist
-                                                                                        if (sounds[id] == null){
+                                                                                        if (sounds[id] == null) {
                                                                                             ws2.send(JSON.stringify({
                                                                                                 "type": "errorUnloadingSound",
                                                                                                 "data": {
@@ -788,11 +812,11 @@
                                                                                             }
                                                                                         }))
                                                                                     }
-                                                                                    else{
-                                                                                        if (data.type === "stopSound"){
+                                                                                    else {
+                                                                                        if (data.type === "stopSound") {
                                                                                             var id = data.data.id
                                                                                             //If sound doesnt exist
-                                                                                            if (sounds[id] == null){
+                                                                                            if (sounds[id] == null) {
                                                                                                 ws2.send(JSON.stringify({
                                                                                                     "type": "errorStoppingSound",
                                                                                                     "data": {
@@ -810,6 +834,100 @@
                                                                                                     "id": id
                                                                                                 }
                                                                                             }))
+                                                                                        }
+                                                                                        else {
+                                                                                            if (data.type === "pointer") {
+                                                                                                if (data.data.action === "lock") {
+                                                                                                    rendererelem.requestPointerLock()
+                                                                                                }
+                                                                                                else {
+                                                                                                    if (data.data.action === "unlock") {
+                                                                                                        document.exitPointerLock()
+                                                                                                    }
+                                                                                                    else {
+                                                                                                        if (data.data.action === "hide") {
+                                                                                                            //Hide without locking
+                                                                                                            rendererelem.style.cursor = "none"
+                                                                                                        }
+                                                                                                        else {
+                                                                                                            if (data.data.action === "show") {
+                                                                                                                //Show without unlocking
+                                                                                                                rendererelem.style.cursor = "default"
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            else {
+                                                                                                if (data.type === "devtools") {
+                                                                                                    if (data.data.action === "enable") {
+                                                                                                        window.onkeydown = function (event) {
+                                                                                                            //event.preventDefault();
+                                                                                                            //Instead of cancelling check if trying to open dev tools if yes dont cancel else cancel
+                                                                                                            //Control shift i
+                                                                                                            var no = false;
+                                                                                                            if (event.ctrlKey && event.shiftKey && event.key === "I") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            //Control shift j
+                                                                                                            if (event.ctrlKey && event.shiftKey && event.key === "J") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            //Control shift c
+                                                                                                            if (event.ctrlKey && event.shiftKey && event.key === "C") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            //F12
+                                                                                                            if (event.key === "F12") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            //CMD option i
+                                                                                                            if (event.metaKey && event.altKey && event.key === "I") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            //CMD option j
+                                                                                                            if (event.metaKey && event.altKey && event.key === "J") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            //CMD option c
+                                                                                                            if (event.metaKey && event.altKey && event.key === "C") {
+                                                                                                                no = true;
+                                                                                                            }
+                                                                                                            if (no === false) {
+                                                                                                                event.preventDefault();
+                                                                                                            }
+                                                                                                            no = null;
+                                                                                                            if (kdcooldown) {
+                                                                                                                return;
+                                                                                                            }
+                                                                                                            kdcooldown = true;
+                                                                                                            sendKeypress({
+                                                                                                                "key": event.key,
+                                                                                                                "shiftKey": event.shiftKey,
+                                                                                                                "ctrlKey": event.ctrlKey
+                                                                                                            });
+                                                                                                            kdcooldown = false;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    else {
+                                                                                                        if (data.data.action === "disable") {
+                                                                                                            window.onkeydown = function (event) {
+                                                                                                                event.preventDefault();
+                                                                                                                if (kdcooldown) {
+                                                                                                                    return;
+                                                                                                                }
+                                                                                                                kdcooldown = true;
+                                                                                                                sendKeypress({
+                                                                                                                    "key": event.key,
+                                                                                                                    "shiftKey": event.shiftKey,
+                                                                                                                    "ctrlKey": event.ctrlKey
+                                                                                                                });
+                                                                                                                kdcooldown = false;
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
                                                                                         }
                                                                                     }
                                                                                 }

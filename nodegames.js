@@ -119,7 +119,9 @@ module.exports = {
             "framerender": function () { },
             "soundloaded": function () { },
             "soundunloaded": function () { },
-            "soundstopped": function () { }
+            "soundstopped": function () { },
+            "pointerlock": function () { },
+            "pointerunlock": function () { }
         }
         var loadedImages = [];
         var errorloadingImage = [];
@@ -564,6 +566,44 @@ module.exports = {
                                     }
                                 }))
                             },
+                            "pointer": {
+                                "lock": function(){
+                                    checkclosed();
+                                    client.send(JSON.stringify({
+                                        "type": "pointer",
+                                        "data": {
+                                            "action": "lock"
+                                        }
+                                    }))
+                                },
+                                "unlock": function(){
+                                    checkclosed();
+                                    client.send(JSON.stringify({
+                                        "type": "pointer",
+                                        "data": {
+                                            "action": "unlock"
+                                        }
+                                    }))
+                                },
+                                "hide": function(){
+                                    checkclosed();
+                                    client.send(JSON.stringify({
+                                        "type": "pointer",
+                                        "data": {
+                                            "action": "hide"
+                                        }
+                                    }))
+                                },
+                                "show": function(){
+                                    checkclosed();
+                                    client.send(JSON.stringify({
+                                        "type": "pointer",
+                                        "data": {
+                                            "action": "show"
+                                        }
+                                    }))
+                                }
+                            },
                             "setTitle": function (title) {
                                 checkclosed();
                                 client.send(JSON.stringify({
@@ -572,6 +612,26 @@ module.exports = {
                                         "title": title
                                     }
                                 }))
+                            },
+                            "devtools": {
+                                "enable": function(){
+                                    checkclosed();
+                                    client.send(JSON.stringify({
+                                        "type": "devtools",
+                                        "data": {
+                                            "action": "enable"
+                                        }
+                                    }))
+                                },
+                                "disable": function(){
+                                    checkclosed();
+                                    client.send(JSON.stringify({
+                                        "type": "devtools",
+                                        "data": {
+                                            "action": "disable"
+                                        }
+                                    }))
+                                }
                             },
                             "on": function (event, callback) {
                                 if (event === "sizeUpdate") {
@@ -630,7 +690,17 @@ module.exports = {
                                                                                         callbacks.soundstopped = callback
                                                                                     }
                                                                                     else{
-                                                                                        return 1;
+                                                                                        if (event === "pointerlock") {
+                                                                                            callbacks.pointerlock = callback
+                                                                                        }
+                                                                                        else{
+                                                                                            if (event === "pointerunlock") {
+                                                                                                callbacks.pointerunlock = callback
+                                                                                            }
+                                                                                            else{
+                                                                                                return 1;
+                                                                                            }
+                                                                                        }
                                                                                     }
                                                                                 }
                                                                             }
@@ -897,6 +967,30 @@ module.exports = {
                             },
                             "close": function () {
                                 canvas.close();
+                            },
+                            "pointer": {
+                                "lock": function(){
+                                    canvas.pointer.lock();
+                                },
+                                "unlock": function(){
+                                    canvas.pointer.unlock();
+                                },
+                                "hide": function(){
+                                    canvas.pointer.hide();
+                                },
+                                "show": function(){
+                                    canvas.pointer.show();
+                                }
+                            },
+                            "cheats": {
+                                "devtools": {
+                                    "enable": function(){
+                                        canvas.devtools.enable();
+                                    },
+                                    "disable": function(){
+                                        canvas.devtools.disable();
+                                    }
+                                }
                             },
                             "loadSound": async function (sound, id) {
                                 try {
@@ -1186,6 +1280,27 @@ module.exports = {
                                                                                                 else{
                                                                                                     if (data.type === "soundStopped"){
                                                                                                         callbacks.soundstopped(data.data.id)
+                                                                                                    }
+                                                                                                    else{
+                                                                                                        if (data.type === "pointerlock"){
+                                                                                                            if (data.locked){
+                                                                                                                callbacks.pointerlock()
+                                                                                                            }
+                                                                                                            else{
+                                                                                                                callbacks.pointerunlock()
+                                                                                                            }
+                                                                                                        }
+                                                                                                        else{
+                                                                                                            if (data.type === "pointerlockerror"){
+                                                                                                                callbacks.error({
+                                                                                                                    "exit_code": 1,
+                                                                                                                    "data": {
+                                                                                                                        "message": "Error locking pointer",
+                                                                                                                        "problem": "Problem is unknown."
+                                                                                                                    }
+                                                                                                                })
+                                                                                                            }
+                                                                                                        }
                                                                                                     }
                                                                                                 }
                                                                                             }
