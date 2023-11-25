@@ -1,6 +1,3 @@
-//TODO: Fix pointerlock and unlock events
-//TODO: Fix error event (pointer lock error part)
-
 console.time("Total");
 console.time("Require module")
 var nodegames = require("./nodegames");
@@ -24,17 +21,17 @@ nodegames.newCanvas(async function (canvas) {
     console.timeEnd("Start canvas");
     console.timeEnd("Total");
 
-    canvas.on("sizeUpdate", function (event) {
+    canvas.on("resize", function (event) {
         width = event.width;
         height = event.height;
-        console.log("Size update", event);
+        console.log("Resize", event);
     });
     canvas.on("close", function () {
         require("process").exit(0);
     })
     var index = 0;
-    canvas.on("mousePositionUpdate", function (event) {
-        console.log("Mouse position update", event);
+    canvas.on("mousemove", function (event) {
+        console.log("Mouse move", event);
         if (index < 1000) {
             squareX = event.x;
         }

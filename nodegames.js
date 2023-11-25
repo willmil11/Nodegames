@@ -22,31 +22,31 @@ module.exports = {
         var npm = function (args) {
             var npmCmd = /^win/.test(process.platform) ? "npm.cmd" : "npm";
             var command = npmCmd + " " + args.join(" ");
-            
-            try{
+
+            try {
                 execSync(command);
             }
-            catch (error){
+            catch (error) {
                 return 1;
             }
         }
 
         var electron;
-        try{
+        try {
             electron = require("electron");
         }
-        catch (error){
+        catch (error) {
             console.log("[Nodegames] Vital dependency: electron@27.0.4 is missing, installing...")
             var returns = npm(["install", "electron@27.0.4"])
-            if (returns === 1){
+            if (returns === 1) {
                 throw "[Nodegames] Unable to install vital dependency: electron@27.0.4."
             }
-            else{
-                try{
+            else {
+                try {
                     electron = require("electron");
                     console.log("[Nodegames] Vital dependency: electron@27.0.4 installed.")
                 }
-                catch (error){
+                catch (error) {
                     throw "[Nodegames] Unable to install vital dependency: electron@27.0.4."
                 }
             }
@@ -54,21 +54,21 @@ module.exports = {
         module.exports.system.electron = electron; //electron 27.0.4
 
         var easynodes;
-        try{
+        try {
             easynodes = require("easynodes");
         }
-        catch (error){
+        catch (error) {
             console.log("[Nodegames] Vital dependency: easynodes@1.0.1 is missing, installing...")
             var returns = npm(["install", "easynodes@1.0.1"])
-            if (returns === 1){
+            if (returns === 1) {
                 throw "[Nodegames] Unable to install vital dependency: easynodes@1.0.1."
             }
-            else{
-                try{
+            else {
+                try {
                     easynodes = require("easynodes");
                     console.log("[Nodegames] Vital dependency: easynodes@1.0.1 installed.")
                 }
-                catch (error){
+                catch (error) {
                     throw "[Nodegames] Unable to install vital dependency: easynodes@1.0.1."
                 }
             }
@@ -77,21 +77,21 @@ module.exports = {
         module.exports.system.easynodes.init();
 
         var portgetter;
-        try{
+        try {
             portgetter = require("port-get");
         }
-        catch (error){
+        catch (error) {
             console.log("[Nodegames] Vital dependency: port-get@1.0.0 is missing, installing...")
             var returns = npm(["install", "port-get@1.0.0"])
-            if (returns === 1){
+            if (returns === 1) {
                 throw "[Nodegames] Unable to install vital dependency: port-get@1.0.0."
             }
-            else{
-                try{
+            else {
+                try {
                     portgetter = require("port-get");
                     console.log("[Nodegames] Vital dependency: port-get@1.0.0 installed.")
                 }
-                catch (error){
+                catch (error) {
                     throw "[Nodegames] Unable to install vital dependency: port-get@1.0.0."
                 }
             }
@@ -567,7 +567,7 @@ module.exports = {
                                 }))
                             },
                             "pointer": {
-                                "lock": function(){
+                                "lock": function () {
                                     checkclosed();
                                     client.send(JSON.stringify({
                                         "type": "pointer",
@@ -576,7 +576,7 @@ module.exports = {
                                         }
                                     }))
                                 },
-                                "unlock": function(){
+                                "unlock": function () {
                                     checkclosed();
                                     client.send(JSON.stringify({
                                         "type": "pointer",
@@ -585,7 +585,7 @@ module.exports = {
                                         }
                                     }))
                                 },
-                                "hide": function(){
+                                "hide": function () {
                                     checkclosed();
                                     client.send(JSON.stringify({
                                         "type": "pointer",
@@ -594,7 +594,7 @@ module.exports = {
                                         }
                                     }))
                                 },
-                                "show": function(){
+                                "show": function () {
                                     checkclosed();
                                     client.send(JSON.stringify({
                                         "type": "pointer",
@@ -614,7 +614,7 @@ module.exports = {
                                 }))
                             },
                             "devtools": {
-                                "enable": function(){
+                                "enable": function () {
                                     checkclosed();
                                     client.send(JSON.stringify({
                                         "type": "devtools",
@@ -623,7 +623,7 @@ module.exports = {
                                         }
                                     }))
                                 },
-                                "disable": function(){
+                                "disable": function () {
                                     checkclosed();
                                     client.send(JSON.stringify({
                                         "type": "devtools",
@@ -634,7 +634,7 @@ module.exports = {
                                 }
                             },
                             "on": function (event, callback) {
-                                if (event === "sizeUpdate") {
+                                if (event === "resize") {
                                     callbacks.sizeUpdate = callback;
                                 }
                                 else {
@@ -642,7 +642,7 @@ module.exports = {
                                         callbacks.close = callback;
                                     }
                                     else {
-                                        if (event === "mousePositionUpdate") {
+                                        if (event === "mousemove") {
                                             callbacks.mouseposupdate = callback;
                                         }
                                         else {
@@ -677,19 +677,19 @@ module.exports = {
                                                                         if (event === "framerender") {
                                                                             callbacks.framerender = callback
                                                                         }
-                                                                        else{
+                                                                        else {
                                                                             if (event === "soundload") {
                                                                                 callbacks.soundloaded = callback
                                                                             }
-                                                                            else{
+                                                                            else {
                                                                                 if (event === "soundunload") {
                                                                                     callbacks.soundunloaded = callback
                                                                                 }
-                                                                                else{
+                                                                                else {
                                                                                     if (event === "soundstop") {
                                                                                         callbacks.soundstopped = callback
                                                                                     }
-                                                                                    else{
+                                                                                    else {
                                                                                         return 1;
                                                                                     }
                                                                                 }
@@ -805,6 +805,9 @@ module.exports = {
                             "text": function (x, y, text, rgb, fontSize, fontName, rotation) {
                                 if (rgb == null) {
                                     rgb = [0, 0, 0];
+                                }
+                                if (fontName == null) {
+                                    fontName = "sans-serif";
                                 }
                                 if (rotation == null) {
                                     rotation = 0;
@@ -959,25 +962,25 @@ module.exports = {
                                 canvas.close();
                             },
                             "pointer": {
-                                "lock": function(){
+                                "lock": function () {
                                     canvas.pointer.lock();
                                 },
-                                "unlock": function(){
+                                "unlock": function () {
                                     canvas.pointer.unlock();
                                 },
-                                "hide": function(){
+                                "hide": function () {
                                     canvas.pointer.hide();
                                 },
-                                "show": function(){
+                                "show": function () {
                                     canvas.pointer.show();
                                 }
                             },
                             "cheats": {
                                 "devtools": {
-                                    "enable": function(){
+                                    "enable": function () {
                                         canvas.devtools.enable();
                                     },
-                                    "disable": function(){
+                                    "disable": function () {
                                         canvas.devtools.disable();
                                     }
                                 }
@@ -1131,10 +1134,10 @@ module.exports = {
                             }
                             else {
                                 if (data.type === "mouseposupdate") {
-                                    if (data.data.x == null){
+                                    if (data.data.x == null) {
                                         data.data.x = 0;
                                     }
-                                    if (data.data.y == null){
+                                    if (data.data.y == null) {
                                         data.data.y = 0;
                                     }
                                     callbacks.mouseposupdate(data.data);
@@ -1211,7 +1214,7 @@ module.exports = {
                                                                         if (data.type === "framerendered") {
                                                                             callbacks.framerender()
                                                                         }
-                                                                        else{
+                                                                        else {
                                                                             if (data.type === "errorLoadingSound") {
                                                                                 errorloadingSound.push(data.data.id);
                                                                                 callbacks.error({
@@ -1223,12 +1226,12 @@ module.exports = {
                                                                                     }
                                                                                 });
                                                                             }
-                                                                            else{
+                                                                            else {
                                                                                 if (data.type === "soundLoaded") {
                                                                                     loadedSounds.push(data.data.id);
                                                                                     callbacks.soundloaded(data.data.id);
                                                                                 }
-                                                                                else{
+                                                                                else {
                                                                                     if (data.type === "errorUnloadingSound") {
                                                                                         callbacks.error({
                                                                                             "exit_code": 1,
@@ -1239,7 +1242,7 @@ module.exports = {
                                                                                             }
                                                                                         });
                                                                                     }
-                                                                                    else{
+                                                                                    else {
                                                                                         if (data.type === "soundUnloaded") {
                                                                                             //Remove from loaded sounds
                                                                                             var index = 0;
@@ -1252,7 +1255,7 @@ module.exports = {
                                                                                             }
                                                                                             callbacks.soundunloaded(data.data.id)
                                                                                         }
-                                                                                        else{
+                                                                                        else {
                                                                                             if (data.type === "errorPlayingSound") {
                                                                                                 callbacks.error({
                                                                                                     "exit_code": 1,
@@ -1263,8 +1266,8 @@ module.exports = {
                                                                                                     }
                                                                                                 });
                                                                                             }
-                                                                                            else{
-                                                                                                if (data.type === "errorStoppingSound"){
+                                                                                            else {
+                                                                                                if (data.type === "errorStoppingSound") {
                                                                                                     callbacks.error({
                                                                                                         "exit_code": 1,
                                                                                                         "data": {
@@ -1274,21 +1277,21 @@ module.exports = {
                                                                                                         }
                                                                                                     });
                                                                                                 }
-                                                                                                else{
-                                                                                                    if (data.type === "soundStopped"){
+                                                                                                else {
+                                                                                                    if (data.type === "soundStopped") {
                                                                                                         callbacks.soundstopped(data.data.id)
                                                                                                     }
-                                                                                                    else{
-                                                                                                        if (data.type === "pointerlock"){
-                                                                                                            if (data.locked){
+                                                                                                    else {
+                                                                                                        if (data.type === "pointerlock") {
+                                                                                                            if (data.locked) {
                                                                                                                 callbacks.pointerlock()
                                                                                                             }
-                                                                                                            else{
+                                                                                                            else {
                                                                                                                 callbacks.pointerunlock()
                                                                                                             }
                                                                                                         }
-                                                                                                        else{
-                                                                                                            if (data.type === "pointerlockerror"){
+                                                                                                        else {
+                                                                                                            if (data.type === "pointerlockerror") {
                                                                                                                 callbacks.error({
                                                                                                                     "exit_code": 1,
                                                                                                                     "data": {
