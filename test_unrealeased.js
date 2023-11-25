@@ -80,9 +80,11 @@ nodegames.newCanvas(async function (canvas) {
     canvas.cheats.devtools.enable()
     setTimeout(function () {
         canvas.pointer.lock();
+        canvas.pointer.hide()
     }, 1000)
     setTimeout(function () {
         canvas.pointer.unlock();
+        canvas.pointer.show()
         canvas.cheats.devtools.disable();
     }, 5000)
 

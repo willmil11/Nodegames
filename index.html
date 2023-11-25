@@ -77,59 +77,56 @@
             mouseX = event.clientX;
             mouseY = event.clientY;
             var direction = null
-            //Can be left right down up choose the most significant
-            if (event.pageX > oldx && event.pageY === oldy) {
-                direction = "right";
-            }
-            else {
-                if (event.pageX === oldx && event.pageY > oldy) {
-                    direction = "down";
+            var movementX = event.movementX
+            var movementY = event.movementY
+            if (movementX > 0) {
+                if (movementY > 0) {
+                    direction = "downright";
                 }
                 else {
-                    if (event.pageX === oldx && event.pageY < oldy) {
-                        direction = "up";
+                    if (movementY < 0) {
+                        direction = "upright";
                     }
                     else {
-                        if (event.pageX < oldx && event.pageY === oldy) {
-                            direction = "left";
+                        direction = "right";
+                    }
+                }
+            }
+            else {
+                if (movementX < 0) {
+                    if (movementY > 0) {
+                        direction = "downleft";
+                    }
+                    else {
+                        if (movementY < 0) {
+                            direction = "upleft";
                         }
                         else {
-                            if (event.pageX > oldx && event.pageY > oldy) {
-                                direction = "downright";
-                            }
-                            else {
-                                if (event.pageX > oldx && event.pageY < oldy) {
-                                    direction = "upright";
-                                }
-                                else {
-                                    if (event.pageX < oldx && event.pageY > oldy) {
-                                        direction = "downleft";
-                                    }
-                                    else {
-                                        if (event.pageX < oldx && event.pageY < oldy) {
-                                            direction = "upleft";
-                                        }
-                                        else {
-                                            if (lastdirectionmousemove == null) {
-                                                direction = null;
-                                            }
-                                            else {
-                                                direction = lastdirectionmousemove;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            direction = "left";
+                        }
+                    }
+                }
+                else {
+                    if (movementY > 0) {
+                        direction = "down";
+                    }
+                    else {
+                        if (movementY < 0) {
+                            direction = "up";
                         }
                     }
                 }
             }
-            var speed = Math.sqrt(Math.pow(mouseX - oldx, 2) + Math.pow(mouseY - oldy, 2));
+            var speed = Math.sqrt(Math.pow(movementX, 2) + Math.pow(movementY, 2));
             sendMousePosUpdate({
                 "x": event.clientX,
                 "y": event.clientY,
                 "direction": direction,
-                "speed": parseInt(`${speed}`.split(".")[0])
+                "speed": parseInt(`${speed}`.split(".")[0]),
+                "movement": {
+                    "x": movementX,
+                    "y": movementY
+                }
             });
             oldx = event.pageX
             oldy = event.pageY
@@ -167,6 +164,25 @@
                             "y": event.clientY
                         });
                     }
+                    else{
+                        //Mouse side buttons
+                        if(event.button === 3){
+                            sendMouseClick({
+                                "button": "side1",
+                                "x": event.clientX,
+                                "y": event.clientY
+                            });
+                        }
+                        else{
+                            if(event.button === 4){
+                                sendMouseClick({
+                                    "button": "side2",
+                                    "x": event.clientX,
+                                    "y": event.clientY
+                                });
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -201,6 +217,8 @@
                     speed = event.deltaX;
                 }
             }
+            //Invert speed (-1 = 1, 1 = -1)
+            speed = speed * -1;
             sendMouseScroll({
                 "direction": direction,
                 "speed": speed
