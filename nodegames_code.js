@@ -11,7 +11,10 @@ var height = app.commandLine.getSwitchValue("arg3");
 var createWindow = function () {
     var window = new BrowserWindow({
         "width": parseInt(width),
-        "height": parseInt(height)
+        "height": parseInt(height),
+        "webPreferences": {
+            "webSecurity": false
+        }
     })
     window.setMenuBarVisibility(false)
 
