@@ -690,17 +690,7 @@ module.exports = {
                                                                                         callbacks.soundstopped = callback
                                                                                     }
                                                                                     else{
-                                                                                        if (event === "pointerlock") {
-                                                                                            callbacks.pointerlock = callback
-                                                                                        }
-                                                                                        else{
-                                                                                            if (event === "pointerunlock") {
-                                                                                                callbacks.pointerunlock = callback
-                                                                                            }
-                                                                                            else{
-                                                                                                return 1;
-                                                                                            }
-                                                                                        }
+                                                                                        return 1;
                                                                                     }
                                                                                 }
                                                                             }

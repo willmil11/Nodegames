@@ -77,12 +77,6 @@ nodegames.newCanvas(async function (canvas) {
     canvas.on("soundstop", function (id) {
         console.log("Sound stopped: " + id);
     })
-    canvas.on("pointerlock", function () {
-        console.log("Pointer locked");
-    })
-    canvas.on("pointerunlock", function () {
-        console.log("Pointer unlocked");
-    })
     canvas.cheats.devtools.enable()
     setTimeout(function () {
         canvas.pointer.lock();
