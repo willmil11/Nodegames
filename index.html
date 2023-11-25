@@ -117,6 +117,12 @@
                     }
                 }
             }
+            if (direction === null) {
+                direction = lastdirectionmousemove;
+            }
+            else{
+                lastdirectionmousemove = direction;
+            }
             var speed = Math.sqrt(Math.pow(movementX, 2) + Math.pow(movementY, 2));
             sendMousePosUpdate({
                 "x": event.clientX,
