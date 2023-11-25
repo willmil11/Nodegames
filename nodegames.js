@@ -1115,6 +1115,7 @@ module.exports = {
                 else {
                     if (clients === 2) {
                         var initialSizeUpdate = true;
+                        var initialMove = true;
                         client.onmessage(function (data) {
                             data = JSON.parse(data);
                             if (data.type === "sizeupdate") {
@@ -1130,6 +1131,12 @@ module.exports = {
                             }
                             else {
                                 if (data.type === "mouseposupdate") {
+                                    if (data.data.x == null){
+                                        data.data.x = 0;
+                                    }
+                                    if (data.data.y == null){
+                                        data.data.y = 0;
+                                    }
                                     callbacks.mouseposupdate(data.data);
                                 }
                                 else {
