@@ -7,7 +7,7 @@ console.time("Init module")
 nodegames.init();
 console.timeEnd("Init module")
 
-console.time("Start canvas");
+console.time("Start game");
 var mouseX = 0;
 var mouseY = 0;
 var width = 800;
@@ -17,20 +17,20 @@ var squareY = 1;
 var img = require("fs").readFileSync("sample.png")
 var img2 = require("fs").readFileSync("sample2.png")
 var sound = require("fs").readFileSync("sample.mp3")
-nodegames.newCanvas(async function (canvas) {
-    console.timeEnd("Start canvas");
+nodegames.newGame(async function (game) {
+    console.timeEnd("Start game");
     console.timeEnd("Total");
 
-    canvas.on("resize", function (event) {
+    game.on("resize", function (event) {
         width = event.width;
         height = event.height;
         console.log("Resize", event);
     });
-    canvas.on("close", function () {
+    game.on("close", function () {
         require("process").exit(0);
     })
     var index = 0;
-    canvas.on("mousemove", function (event) {
+    game.on("mousemove", function (event) {
         console.log("Mouse move", event);
         if (index < 1000) {
             squareX = event.x;
@@ -39,50 +39,50 @@ nodegames.newCanvas(async function (canvas) {
         mouseX = event.x
         mouseY = event.y
     })
-    canvas.on("keypress", function (event) {
+    game.on("keypress", function (event) {
         console.log("Key press", event);
     })
-    canvas.on("mouseclick", function (event) {
+    game.on("mouseclick", function (event) {
         console.log("Mouse click", event);
     })
-    canvas.on("mousescroll", function (event) {
+    game.on("mousescroll", function (event) {
         console.log("Mouse scroll", event);
     });
-    canvas.on("keyrelease", function (event) {
+    game.on("keyrelease", function (event) {
         console.log("Key release", event);
     });
-    canvas.on("imageload", function (id) {
+    game.on("imageload", function (id) {
         console.log("Image loaded: " + id);
     })
-    canvas.on("error", function (error) {
+    game.on("error", function (error) {
         console.log("Error", error);
     })
-    canvas.on("imageunload", function (id) {
+    game.on("imageunload", function (id) {
         console.log("Image unloaded: " + id);
     });
     var frameCount = 0;
 
-    canvas.on("framerender", function () {
+    game.on("framerender", function () {
         frameCount += 1;
     });
-    canvas.on("soundload", function (id) {
+    game.on("soundload", function (id) {
         console.log("Sound loaded: " + id);
     });
-    canvas.on("soundunload", function (id) {
+    game.on("soundunload", function (id) {
         console.log("Sound played: " + id);
     });
-    canvas.on("soundstop", function (id) {
+    game.on("soundstop", function (id) {
         console.log("Sound stopped: " + id);
     })
-    canvas.cheats.devtools.enable()
+    game.cheats.devtools.enable()
     setTimeout(function () {
-        canvas.pointer.lock();
-        canvas.pointer.hide()
+        game.pointer.lock();
+        game.pointer.hide()
     }, 1000)
     setTimeout(function () {
-        canvas.pointer.unlock();
-        canvas.pointer.show()
-        canvas.cheats.devtools.disable();
+        game.pointer.unlock();
+        game.pointer.show()
+        game.cheats.devtools.disable();
     }, 5000)
 
     setInterval(function () {
@@ -92,41 +92,41 @@ nodegames.newCanvas(async function (canvas) {
     }, 1000);
 
     setTimeout(function () {
-        canvas.setWindowName("Now titled")
+        game.setWindowName("Now titled")
     }, 5000)
 
     //Draw a rgb(80, 255, 80) square rotating in the middle of the screen
-    //Close canvas after 1000 5 degrees rotations
-    await canvas.loadImage(img, "id")
-    await canvas.loadImage(img2, "id2");
-    await canvas.loadSound(sound, "sound");
+    //Close game after 1000 5 degrees rotations
+    await game.loadImage(img, "id")
+    await game.loadImage(img2, "id2");
+    await game.loadSound(sound, "sound");
     setTimeout(function () {
-        canvas.playSound("sound", true);
+        game.playSound("sound", true);
         setTimeout(function () {
-            canvas.stopSound("sound");
+            game.stopSound("sound");
             setTimeout(function () {
-                canvas.playSound("sound", false);
+                game.playSound("sound", false);
             }, 3000)
         }, 7000)
     }, 3000);
     var rotation = 0;
     while (true) {
-        canvas.image("id", squareX, squareY, width / 10, width / 10, rotation)
-        canvas.image("id2", squareX - width / 8, squareY, width / 10, width / 10, rotation)
-        canvas.renderFrame()
+        game.image("id", squareX, squareY, width / 10, width / 10, rotation)
+        game.image("id2", squareX - width / 8, squareY, width / 10, width / 10, rotation)
+        game.renderFrame()
         rotation += 5;
         if (rotation === 360) {
             rotation = 0;
         }
         index += 1;
         if (index === 1000) {
-            canvas.unloadImage("id");
+            game.unloadImage("id");
         }
         if (index > 1000) {
             squareX = mouseX + width / 8
         }
         if (index === 10000) {
-            canvas.close();
+            game.close();
         }
         await new Promise(resolve => setTimeout(resolve, 10));
     }

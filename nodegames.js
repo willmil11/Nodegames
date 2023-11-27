@@ -99,7 +99,7 @@ module.exports = {
         module.exports.system.portget = portgetter; //port-get 1.0.0
         module.exports.system.inited = true;
     },
-    "newCanvas": function (callback, width, height) {
+    "newGame": function (callback, width, height) {
         module.exports.system.checkinit();
         var execSync = require("child_process").execSync;
         var easynodes = module.exports.system.easynodes;
@@ -128,6 +128,7 @@ module.exports = {
         var errordrawingImage = [];
         var loadedSounds = [];
         var errorloadingSound = [];
+        var measureText = [];
 
         var port;
         portget().then(function (out) {
@@ -148,7 +149,7 @@ module.exports = {
                     if (canvas === null) {
                         var checkclosed = function () {
                             if (gameclosed) {
-                                throw "[Nodegames] Canvas is closed, cannot send instructions."
+                                throw "[Nodegames] Game is closed, cannot send instructions."
                             }
                         }
                         canvas = {
@@ -464,7 +465,7 @@ module.exports = {
                                     }
                                 }))
                                 while (loadedImages.includes(id) === false) {
-                                    await new Promise(function (resolve) { setTimeout(resolve, 10) });
+                                    await new Promise(function (resolve) { setTimeout(resolve, 1) });
                                     var index = 0;
                                     while (index < errorloadingImage.length) {
                                         if (errorloadingImage[index] === id) {
@@ -506,7 +507,7 @@ module.exports = {
                                     }
                                 }))
                                 while (loadedSounds.includes(id) === false) {
-                                    await new Promise(function (resolve) { setTimeout(resolve, 10) });
+                                    await new Promise(function (resolve) { setTimeout(resolve, 1) });
                                     var index = 0;
                                     while (index < errorloadingSound.length) {
                                         if (errorloadingSound[index] === id) {
@@ -632,6 +633,28 @@ module.exports = {
                                         }
                                     }))
                                 }
+                            },
+                            "measureText": async function (text, fontSize, fontName, id) {
+                                checkclosed();
+                                measureText.push(id)
+                                client.send(JSON.stringify({
+                                    "type": "measureText",
+                                    "data": {
+                                        "text": text,
+                                        "fontSize": fontSize,
+                                        "fontName": fontName,
+                                        "textId": id
+                                    }
+                                }))
+                                var idindex = measureText.indexOf(id);
+                                while (measureText.includes(id)) {
+                                    await new Promise(function (resolve) { setTimeout(resolve, 1) });
+                                }
+                                //Id has been replaced with the width
+                                //Return the width
+                                var returns = measureText[idindex]
+                                measureText.splice(idindex, 1);
+                                return returns;
                             },
                             "on": function (event, callback) {
                                 if (event === "resize") {
@@ -880,6 +903,17 @@ module.exports = {
                                 toRender.push(canvas.get.setImage(id, x, y, width, height, rotation));
                             },
                             "loadImage": async function (image, id) {
+                                //If image is already loaded
+                                if (loadedImages.includes(id)) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error loading image",
+                                            "problem": "Image is already loaded",
+                                            "id": id
+                                        }
+                                    })
+                                }
                                 try {
                                     image = image.toString("base64");
                                 }
@@ -906,6 +940,17 @@ module.exports = {
                                 }
                             },
                             "unloadImage": function (id) {
+                                //If image is already unloaded
+                                if (loadedImages.includes(id) === false) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error unloading image",
+                                            "problem": "Image isn't loaded",
+                                            "id": id
+                                        }
+                                    })
+                                }
                                 var result = canvas.unloadImage(id);
                                 if (result === 1) {
                                     throw JSON.stringify({
@@ -986,6 +1031,17 @@ module.exports = {
                                 }
                             },
                             "loadSound": async function (sound, id) {
+                                //If sound is already loaded
+                                if (loadedSounds.includes(id)) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error loading sound",
+                                            "problem": "Sound is already loaded",
+                                            "id": id
+                                        }
+                                    })
+                                }
                                 try {
                                     sound = sound.toString("base64");
                                 }
@@ -1012,6 +1068,17 @@ module.exports = {
                                 }
                             },
                             "unloadSound": function (id) {
+                                //If sound is already unloaded
+                                if (loadedSounds.includes(id) === false) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error unloading sound",
+                                            "problem": "Sound isn't loaded",
+                                            "id": id
+                                        }
+                                    })
+                                }
                                 var result = canvas.unloadSound(id);
                                 if (result === 1) {
                                     throw JSON.stringify({
@@ -1110,6 +1177,66 @@ module.exports = {
                                 }
                                 //Everything is ok
                                 canvas.setTitle(name)
+                            },
+                            "measureText": async function (text, fontSize, fontName) {
+                                if (fontName == null) {
+                                    fontName = "sans-serif";
+                                }
+                                if (!(typeof text === "string" && typeof fontSize === "number" && typeof fontName === "string")) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while measuring text.",
+                                            "problem": "Invalid text, fontSize or fontName value.",
+                                            "text": `${text}`,
+                                            "fontSize": `${fontSize}`,
+                                            "fontName": `${fontName}`
+                                        }
+                                    })
+                                }
+                                if (text === "") {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while measuring text.",
+                                            "problem": "Text is empty.",
+                                            "text": `${text}`,
+                                            "fontSize": `${fontSize}`,
+                                            "fontName": `${fontName}`
+                                        }
+                                    })
+                                }
+                                if (fontSize === 0) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while measuring text.",
+                                            "problem": "Font size is 0.",
+                                            "text": `${text}`,
+                                            "fontSize": `${fontSize}`,
+                                            "fontName": `${fontName}`
+                                        }
+                                    })
+                                }
+                                if (fontName === "") {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while measuring text.",
+                                            "problem": "Font name is empty.",
+                                            "text": `${text}`,
+                                            "fontSize": `${fontSize}`,
+                                            "fontName": `${fontName}`
+                                        }
+                                    })
+                                }
+                                var id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+                                var result = {};
+                                result.width = await canvas.measureText(text, fontSize, fontName, id);
+                                result.width = parseInt(`${result.width}`.split(".")[0]);
+                                result.height = fontSize;
+                                return result;
                             }
                         }
                         callback(canvasApi)
@@ -1299,6 +1426,11 @@ module.exports = {
                                                                                                                         "problem": "Problem is unknown."
                                                                                                                     }
                                                                                                                 })
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                if (data.type === "textMeasured") {
+                                                                                                                    measureText[measureText.indexOf(data.data.textId)] = data.data.width;
+                                                                                                                }
                                                                                                             }
                                                                                                         }
                                                                                                     }

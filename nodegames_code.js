@@ -46,6 +46,16 @@ var createWindow = function () {
             y: clickY
         });
         window.webContents.executeJavaScript("var port = " + port + ";");
+
+        //Set the variable "visible" to the visibility of the window
+        //Change it when the window is minimized or maximized
+        window.webContents.executeJavaScript("var visible = " + window.isVisible() + ";");
+        window.on("minimize", function () {
+            window.webContents.executeJavaScript("visible = false;");
+        });
+        window.on("maximize", function () {
+            window.webContents.executeJavaScript("visible = true;");
+        });
     });
     
     return window;

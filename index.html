@@ -238,6 +238,11 @@
             await new Promise(function (resolve) { setTimeout(resolve, 1) });
         }
         console.log("[Nodegames] Connection info loaded.");
+        console.log("[Nodegames] Waiting for window info to load...");
+        while (typeof visible === "undefined"){
+            await new Promise(function (resolve) { setTimeout(resolve, 1) });
+        }
+        console.log("[Nodegames] Window info loaded.");
         //Create a websocket to 127.0.0.1:port
         var ws = new WebSocket("ws://127.0.0.1:" + port);
         console.log("[Nodegames] Connecting...");
@@ -330,6 +335,9 @@
                 }))
             }
             ws.onmessage = function (data) {
+                if (visible === false){
+                    return;
+                }
                 data = data.data;
                 data = JSON.parse(data);
                 if (data.type === "setPixel") {
@@ -949,6 +957,24 @@
                                                                                                                 kdcooldown = false;
                                                                                                             }
                                                                                                         }
+                                                                                                    }
+                                                                                                }
+                                                                                                else{
+                                                                                                    if (data.type === "measureText"){
+                                                                                                        var text = data.data.text
+                                                                                                        var fontSize = data.data.fontSize
+                                                                                                        var fontName = data.data.fontName
+                                                                                                        var textId = data.data.textId
+
+                                                                                                        ctx.font = fontSize + "px " + fontName
+                                                                                                        var width = ctx.measureText(text).width
+                                                                                                        ws2.send(JSON.stringify({
+                                                                                                            "type": "textMeasured",
+                                                                                                            "data": {
+                                                                                                                "width": width,
+                                                                                                                "textId": textId
+                                                                                                            }
+                                                                                                        }))
                                                                                                     }
                                                                                                 }
                                                                                             }
