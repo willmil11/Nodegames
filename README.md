@@ -1,4 +1,4 @@
-# Nodegames by willmil11
+# Nodegames 1.0.0 by willmil11
 ## Installation
 1. You will be required to have node.js and npm installed as well as having an internet connection.
 2. Run the following command: `npm install nodegames`
@@ -17,9 +17,10 @@ nodegames.init();
 Then create a game with the following code:
 ```js
 var game = nodegames.newGame(function (game) {
-    // The callback will be called once the game window has opened.
+    // The callback will be called once the game window has opened and is ready.
     // "game" is the game object that you'll use to control the game.
 }, width, height)
+//Change the above "width" and "height" to the actual width and height
 ```
 In the following stuff "game" represents the callback argument and as so the game object if you change the argument name you'll have to change the name in the following stuff.
 ### Set window name
@@ -254,13 +255,13 @@ To load/unload an image do this:
 ```js
 game.loadImage(image, id)
 ```
-Image must be a jpg or png that you can load like this:
+Image must be a jpg or png that you can get like this:
 ```js
 var fs = require("fs")
 var image = fs.readFileSync("/path/to/image");
 ```
 
-The 'problem' of the loadImage method is that it returns a promise so it is not syncronous but the good thing about that is that you can just use then or await to set a callback or wait for the image to be loaded.
+The 'problem' of the loadImage method is that it returns a promise so it is not syncronous but the good thing about that is that you can just use .then or await to set a callback or wait for the image to be loaded.
 <br>
 <br>
 Now to unload an image you can do the following:
@@ -274,13 +275,13 @@ To load/unload a sound do this:
 ```js
 game.loadSound(sound, id)
 ```
-Sound must be a wav or mp3 that you can load like this:
+Sound must be a wav or mp3 that you can get like this:
 ```js
 var fs = require("fs")
 var sound = fs.readFileSync("/path/to/sound");
 ```
 
-The 'problem' of the loadSound method is that it returns a promise so it is not syncronous but the good thing about that is that you can just use then or await to set a callback or wait for the sound to be loaded.
+The 'problem' of the loadSound method is that it returns a promise so it is not syncronous but the good thing about that is that you can just use .then or await to set a callback or wait for the sound to be loaded.
 <br>
 <br>
 Now to unload a sound you can do the following:
@@ -302,3 +303,39 @@ To stop a sound you can do the following:
 game.stopSound(id)
 ```
 This should stop the sound from playing.
+
+### Pointer control
+To hide the pointer:
+```js
+game.pointer.hide()
+```
+To show the pointer:
+```js
+game.pointer.show()
+```
+To try to lock the pointer
+```js
+game.pointer.lock()
+```
+To unlock the pointer
+```js
+game.pointer.unlock()
+```
+
+## Help me
+If you'd like to help you can take a peek at the code, enable/disable devtools in the game window like this:
+```js
+game.cheats.devtools.enable(); //Enable devtools
+game.cheats.devtools.disable(); //Disable devtools
+```
+And then press F12 to open devtools.
+<br>
+<br>
+If you find bugs or have a suggestion you can send them in the <a href="https://github.com/willmil11/Nodegames/issues">issues tab</a>.
+
+## Github
+<a href="https://github.com/willmil11/Nodegames/">Click to go to the repo</a>
+
+## Changelog
+### 1.0.0
+- Initial release
