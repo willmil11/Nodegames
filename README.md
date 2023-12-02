@@ -1,4 +1,4 @@
-# Nodegames 1.0.0 by willmil11
+# Nodegames 1.1.0 by willmil11
 ## Installation
 1. You will be required to have node.js and npm installed as well as having an internet connection.
 2. Run the following command: `npm install nodegamesjs`
@@ -380,5 +380,7 @@ If you find bugs or have a suggestion you can send them in the <a href="https://
 <a href="https://github.com/willmil11/Nodegames/">Click to go to the repo</a>
 
 ## Changelog
+### 1.1.0
+- Added a way to change pointer style
 ### 1.0.0
 - Initial release
