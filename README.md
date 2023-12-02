@@ -179,7 +179,7 @@ To draw stuff you can use the following:
 //
 
 //Example:
-game.pixel(0, 0, [0, 0, 0]) //Black pixel at coordinates 0, 0
+game.pixel(0, 0, [255, 255, 255]) //White pixel at coordinates 0, 0
 ```
 ```js
 //Draw a rectangle
@@ -188,10 +188,10 @@ game.pixel(0, 0, [0, 0, 0]) //Black pixel at coordinates 0, 0
 //
 
 //Examples:
-game.rect(0, 0, 10, 10, [0, 0, 0]) //Black rectangle at coordinates 0, 0 of width and height 10px, rotation of 0 degrees, not hollow
-game.rect(0, 0, 10, 10, [0, 0, 0], 45) //Black rectangle at coordinates 0, 0 of width and height 10px, rotation of 45 degrees, not hollow
-game.rect(0, 0, 10, 10, [0, 0, 0], 45, true) //Black rectangle at coordinates 0, 0 of width and height 10px, rotation of 45 degrees, hollow
-game.rect(0, 0, 10, 10, [0, 0, 0], 45, false) //Black rectangle at coordinates 0, 0 of width and height 10px, rotation of 45 degrees, not hollow
+game.rect(0, 0, 10, 10, [255, 255, 255]) //White rectangle at coordinates 0, 0 of width and height 10px, rotation of 0 degrees, not hollow
+game.rect(0, 0, 10, 10, [255, 255, 255], 45) //White rectangle at coordinates 0, 0 of width and height 10px, rotation of 45 degrees, not hollow
+game.rect(0, 0, 10, 10, [255, 255, 255], 45, true) //White rectangle at coordinates 0, 0 of width and height 10px, rotation of 45 degrees, hollow
+game.rect(0, 0, 10, 10, [255, 255, 255], 45, false) //White rectangle at coordinates 0, 0 of width and height 10px, rotation of 45 degrees, not hollow
 ```
 ```js
 //Draw a circle
@@ -200,9 +200,9 @@ game.rect(0, 0, 10, 10, [0, 0, 0], 45, false) //Black rectangle at coordinates 0
 //
 
 //Exemples:
-game.circle(0, 0, 10, [0, 0, 0]) //Black circle at coordinates 0, 0 of radius 10px, not hollow
-game.circle(0, 0, 10, [0, 0, 0], true) //Black circle at coordinates 0, 0 of radius 10px, hollow
-game.circle(0, 0, 10, [0, 0, 0], false) //Black circle at coordinates 0, 0 of radius 10px, not hollow
+game.circle(0, 0, 10, [255, 255, 255]) //White circle at coordinates 0, 0 of radius 10px, not hollow
+game.circle(0, 0, 10, [255, 255, 255], true) //White circle at coordinates 0, 0 of radius 10px, hollow
+game.circle(0, 0, 10, [255, 255, 255], false) //White circle at coordinates 0, 0 of radius 10px, not hollow
 ```
 ```js
 //Draw a line
@@ -211,8 +211,8 @@ game.circle(0, 0, 10, [0, 0, 0], false) //Black circle at coordinates 0, 0 of ra
 //
 
 //Examples:
-game.line(0, 0, 10, 0, [0, 0, 0]) //Black line from coordinates 0, 0 to 10, 0 with a rotation of 0 degrees
-game.line(0, 0, 10, 0, [0, 0, 0], 45) //Black line from coordinates 0, 0 to 10, 0 with a rotation of 45 degrees
+game.line(0, 0, 10, 0, [255, 255, 255]) //White line from coordinates 0, 0 to 10, 0 with a rotation of 0 degrees
+game.line(0, 0, 10, 0, [255, 255, 255], 45) //White line from coordinates 0, 0 to 10, 0 with a rotation of 45 degrees
 ```
 ```js
 //Draw text
@@ -221,8 +221,8 @@ game.line(0, 0, 10, 0, [0, 0, 0], 45) //Black line from coordinates 0, 0 to 10, 
 //
 
 //Examples:
-game.text(0, 0, "Hello world!", [0, 0, 0], 10, "Arial") //"Hello world!" in black at coordinates 0, 0 with font name "Arial" font size 10 and a rotation of 0 degrees.
-game.text(0, 0, "Hello world!", [0, 0, 0], 10, "Arial", 45) //"Hello world!" in black at coordinates 0, 0 with font name "Arial" font size 10 and a rotation of 45 degrees.
+game.text(0, 0, "Hello world!", [255, 255, 255], 10, "Arial") //"Hello world!" in white at coordinates 0, 0 with font name "Arial" font size 10 and a rotation of 0 degrees.
+game.text(0, 0, "Hello world!", [255, 255, 255], 10, "Arial", 45) //"Hello world!" in white at coordinates 0, 0 with font name "Arial" font size 10 and a rotation of 45 degrees.
 ```
 ```js
 //Clear window/rectangle
