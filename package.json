@@ -1,5 +1,5 @@
 {
-  "name": "nodegames",
+  "name": "nodegamesjs",
   "version": "1.0.0",
   "description": "Nodegames is a node.js game engine inspired by Pygame",
   "main": "nodegames.js",

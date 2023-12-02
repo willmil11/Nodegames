@@ -1,12 +1,12 @@
 # Nodegames 1.0.0 by willmil11
 ## Installation
 1. You will be required to have node.js and npm installed as well as having an internet connection.
-2. Run the following command: `npm install nodegames`
+2. Run the following command: `npm install nodegamesjs`
 3. You are now ready to use nodegames!
 ## Usage
 First you'll have to require the module.
 ```js
-var nodegames = require("nodegames");
+var nodegames = require("nodegamesjs");
 ```
 Then init nodegames with the following code:
 ```js
