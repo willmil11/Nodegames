@@ -887,6 +887,11 @@
                                                                                                                 //Show without unlocking
                                                                                                                 rendererelem.style.cursor = "default"
                                                                                                             }
+                                                                                                            else{
+                                                                                                                if (data.data.action === "setStyle"){
+                                                                                                                    rendererelem.style.cursor = data.data.style
+                                                                                                                }
+                                                                                                            }
                                                                                                         }
                                                                                                     }
                                                                                                 }

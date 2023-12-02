@@ -603,6 +603,16 @@ module.exports = {
                                             "action": "show"
                                         }
                                     }))
+                                },
+                                "setStyle": function (style) {
+                                    checkclosed()
+                                    client.send(JSON.stringify({
+                                        "type": "pointer",
+                                        "data": {
+                                            "action": "setStyle",
+                                            "style": style
+                                        }
+                                    }))
                                 }
                             },
                             "setTitle": function (title) {
@@ -1018,6 +1028,57 @@ module.exports = {
                                 },
                                 "show": function () {
                                     canvas.pointer.show();
+                                },
+                                "setStyle": function (style) {
+                                    var pointers = [ 
+                                        "default", 
+                                        "context-menu", 
+                                        "help", 
+                                        "pointer", 
+                                        "progress", 
+                                        "wait", 
+                                        "cell", 
+                                        "crosshair", 
+                                        "text", 
+                                        "vertical-text", 
+                                        "alias", 
+                                        "copy", 
+                                        "move", 
+                                        "no-drop", 
+                                        "not-allowed", 
+                                        "grab", 
+                                        "grabbing", 
+                                        "all-scroll", 
+                                        "col-resize", 
+                                        "row-resize", 
+                                        "n-resize", 
+                                        "e-resize", 
+                                        "s-resize", 
+                                        "w-resize", 
+                                        "ne-resize", 
+                                        "nw-resize", 
+                                        "se-resize", 
+                                        "sw-resize", 
+                                        "ew-resize", 
+                                        "ns-resize", 
+                                        "nesw-resize", 
+                                        "nwse-resize", 
+                                        "zoom-in",
+                                        "zoom-out"
+                                    ]
+                                    if (pointers.includes(style) === false){
+                                        throw JSON.stringify({
+                                            "exit_code": 1,
+                                            "data": {
+                                                "message": "Error setting pointer style to \"" + `${style}` + "\".",
+                                                "problem": "Pointer style is invalid.",
+                                                "style": `${style}`
+                                            }
+                                        }, null, 4)
+                                    }
+                                    else{
+                                        canvas.pointer.setStyle(style);
+                                    }
                                 }
                             },
                             "cheats": {

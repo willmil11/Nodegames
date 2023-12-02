@@ -321,6 +321,49 @@ To unlock the pointer
 ```js
 game.pointer.unlock()
 ```
+#### Change pointer style
+Here is the pointer style list:
+- "default"
+- "context-menu"
+- "help"
+- "pointer"
+- "progress"
+- "wait"
+- "cell"
+- "crosshair"
+- "text"
+- "vertical-text"
+- "alias"
+- "copy"
+- "move"
+- "no-drop"
+- "not-allowed"
+- "grab"
+- "grabbing"
+- "all-scroll"
+- "col-resize"
+- "row-resize"
+- "n-resize"
+- "e-resize"
+- "s-resize"
+- "w-resize"
+- "ne-resize"
+- "nw-resize"
+- "se-resize"
+- "sw-resize"
+- "ew-resize"
+- "ns-resize"
+- "nesw-resize"
+- "nwse-resize"
+- "zoom-in"
+- "zoom-out"
+
+<br>
+To change pointer style:
+
+```js
+game.pointer.setStyle(style); //Replace "style" with the pointer style you want
+```
 
 ## Help me
 If you'd like to help you can take a peek at the code, enable/disable devtools in the game window like this:
