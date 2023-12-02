@@ -1,4 +1,4 @@
-# Nodegames 1.1.0 by willmil11
+# Nodegames 1.1.1 by willmil11
 ## Installation
 1. You will be required to have node.js and npm installed as well as having an internet connection.
 2. Run the following command: `npm install nodegamesjs`
@@ -250,6 +250,7 @@ After 'drawing' all of your stuff you'll notice nothing is displayed on the wind
 ```js
 game.renderFrame()
 ```
+It is not recommanded to render frames quicker than each 10ms (100fps) as it is the maximum stable fps you can get with nodegames. If you exceed it can lag a lot.
 ### Loading/unloading images
 To load/unload an image do this:
 ```js
@@ -380,6 +381,8 @@ If you find bugs or have a suggestion you can send them in the <a href="https://
 <a href="https://github.com/willmil11/Nodegames/">Click to go to the repo</a>
 
 ## Changelog
+### 1.1.1
+- Little fix in the readme.
 ### 1.1.0
 - Added a way to change pointer style
 ### 1.0.0
