@@ -1,4 +1,4 @@
-# Nodegames 1.1.1 by willmil11
+# Nodegames 1.1.2 by willmil11
 ## Installation
 1. You will be required to have node.js and npm installed as well as having an internet connection.
 2. Run the following command: `npm install nodegamesjs`
@@ -381,6 +381,8 @@ If you find bugs or have a suggestion you can send them in the <a href="https://
 <a href="https://github.com/willmil11/Nodegames/">Click to go to the repo</a>
 
 ## Changelog
+### 1.1.2
+- Added some code to prepare for nodegamesjs-forge release (will be a way to package your game to an executable).
 ### 1.1.1
 - Little fix in the readme.
 ### 1.1.0

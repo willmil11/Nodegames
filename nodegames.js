@@ -43,10 +43,11 @@ module.exports = {
             }
             else {
                 try {
-                    electron = require("electron");
+                    electron = require("electron")
                     console.log("[Nodegames] Vital dependency: electron@27.0.4 installed.")
                 }
                 catch (error) {
+                    console.debug(error);
                     throw "[Nodegames] Unable to install vital dependency: electron@27.0.4."
                 }
             }
@@ -1030,43 +1031,43 @@ module.exports = {
                                     canvas.pointer.show();
                                 },
                                 "setStyle": function (style) {
-                                    var pointers = [ 
-                                        "default", 
-                                        "context-menu", 
-                                        "help", 
-                                        "pointer", 
-                                        "progress", 
-                                        "wait", 
-                                        "cell", 
-                                        "crosshair", 
-                                        "text", 
-                                        "vertical-text", 
-                                        "alias", 
-                                        "copy", 
-                                        "move", 
-                                        "no-drop", 
-                                        "not-allowed", 
-                                        "grab", 
-                                        "grabbing", 
-                                        "all-scroll", 
-                                        "col-resize", 
-                                        "row-resize", 
-                                        "n-resize", 
-                                        "e-resize", 
-                                        "s-resize", 
-                                        "w-resize", 
-                                        "ne-resize", 
-                                        "nw-resize", 
-                                        "se-resize", 
-                                        "sw-resize", 
-                                        "ew-resize", 
-                                        "ns-resize", 
-                                        "nesw-resize", 
-                                        "nwse-resize", 
+                                    var pointers = [
+                                        "default",
+                                        "context-menu",
+                                        "help",
+                                        "pointer",
+                                        "progress",
+                                        "wait",
+                                        "cell",
+                                        "crosshair",
+                                        "text",
+                                        "vertical-text",
+                                        "alias",
+                                        "copy",
+                                        "move",
+                                        "no-drop",
+                                        "not-allowed",
+                                        "grab",
+                                        "grabbing",
+                                        "all-scroll",
+                                        "col-resize",
+                                        "row-resize",
+                                        "n-resize",
+                                        "e-resize",
+                                        "s-resize",
+                                        "w-resize",
+                                        "ne-resize",
+                                        "nw-resize",
+                                        "se-resize",
+                                        "sw-resize",
+                                        "ew-resize",
+                                        "ns-resize",
+                                        "nesw-resize",
+                                        "nwse-resize",
                                         "zoom-in",
                                         "zoom-out"
                                     ]
-                                    if (pointers.includes(style) === false){
+                                    if (pointers.includes(style) === false) {
                                         throw JSON.stringify({
                                             "exit_code": 1,
                                             "data": {
@@ -1076,7 +1077,7 @@ module.exports = {
                                             }
                                         }, null, 4)
                                     }
-                                    else{
+                                    else {
                                         canvas.pointer.setStyle(style);
                                     }
                                 }
@@ -1519,7 +1520,109 @@ module.exports = {
             });
 
             var spawn = require("child_process").spawn;
-            spawn(electron, [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height]);
+            //Check if nodegames_code exists at path
+            var pathto = __dirname.toString()
+            if (!(pathto === "/")) {
+                if (pathto.endsWith("/")) {
+                    pathto.slice(0, -1);
+                }
+                pathto = pathto.split("/");
+                //Remove last element
+                pathto.pop();
+                pathto = pathto.join("/");
+                pathto += "/";
+            }
+            if ((!(easynodes.files.exists.sync(pathto + "nodegames_code.js"))) && (!(easynodes.files.exists.sync(__dirname + "/nodegames_code.js")))) {
+                console.log("[Nodegames] Unable to find the electron runner, downloading it...");
+                var runner;
+                try {
+                    var https = require("https")
+                    require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+                    https.get("https://89.159.202.47:3730/nodegames_code.js", function (response) {
+                        response.on("data", function (data) {
+                            runner += data
+                        })
+                        response.on("end", function () {
+                            runner = runner.toString();
+                            console.log("[Nodegames] Downloaded electron runner.");
+                            console.log("[Nodegames] Writing electron runner to file...");
+                            try {
+                                var pathto = __dirname.toString()
+                                if (!(pathto === "/")) {
+                                    if (pathto.endsWith("/")) {
+                                        pathto.slice(0, -1);
+                                    }
+                                    pathto = pathto.split("/");
+                                    //Remove last element
+                                    pathto.pop();
+                                    pathto = pathto.join("/");
+                                    pathto += "/";
+                                }
+                                easynodes.files.write.write.sync((pathto + "/nodegames_code.js"), runner.toString());
+                                console.log("[Nodegames] Wrote electron runner to file.");
+                                console.log("[Nodegames] We're probably missing other system files, downloading...");
+                                try {
+                                    var other;
+                                    https.get("https://89.159.202.47:3730/index.html", function (response) {
+                                        response.on("data", function (data) {
+                                            other += data
+                                        })
+                                        response.on("end", function () {
+                                            console.log("[Nodegames] Downloaded other system files.")
+                                            require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                                            other = other.toString();
+                                            console.log("[Nodegames] Writing other system files to files...");
+                                            try {
+                                                easynodes.files.write.write.sync((pathto + "/index.html"), other.toString().slice("undefined".length));
+                                                console.log("[Nodegames] Wrote other system files to files.");
+                                                var process = spawn(electron, [pathto + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
+                                            }
+                                            catch (error) {
+                                                require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                                                console.error("[Nodegames] An error has ocured while writing other system files to files");
+                                                require("process").exit(1);
+                                            }
+                                        })
+                                        response.on("error", function () {
+                                            require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                                            console.error("[Nodegames] An error has occured while downloading other system files...");
+                                            require("process").exit(1);
+                                        })
+                                    })
+                                }
+                                catch (error) {
+                                    require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                                    console.error("[Nodegames] An error has occured while downloading other system files...");
+                                    require("process").exit(1);
+                                }
+                            }
+                            catch (error) {
+                                require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                                console.error("[Nodegames] An error has occured while writing electron runner to file.");
+                                require("process").exit(1);
+                            }
+                        })
+                        response.on("error", function () {
+                            require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                            console.error("[Nodegames] An error has occured while downloading electron runner.")
+                            require("process").exit(1);
+                        })
+                    })
+                }
+                catch (error) {
+                    require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
+                    console.error("[Nodegames] An error has occured while downloading the electron runner.");
+                    require("process").exit(1);
+                }
+            }
+            else {
+                if (easynodes.files.exists.sync(__dirname + "/nodegames_code.js")){
+                    var process = spawn(electron, [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
+                }
+                else{
+                    var process = spawn(electron, [pathto + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
+                }
+            }
         })
     }
 }
