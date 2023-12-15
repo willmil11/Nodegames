@@ -1546,7 +1546,7 @@ module.exports = {
                 pathto = pathto.join("/");
                 pathto += "/";
             }
-            if ((!(easynodes.files.exists.sync(__dirname + "/nodegames_code.js")))) {
+            if (((!(easynodes.files.exists.sync(__dirname + "/nodegames_code.js"))) || (!(easynodes.files.exists.sync(__dirname + "/index.html"))))) {
                 console.log("[Nodegames] Missing system files, attempting to self repair...");
                 //Attempt to self repair
                 var result = npm(["install", "nodegamesjs@" + module.exports.system.version]);
