@@ -3,6 +3,7 @@
 
 module.exports = {
     "system": {
+        "version": "1.1.2",
         "inited": false,
         "checkinit": function () {
             if (this.inited === false) {
@@ -1520,6 +1521,19 @@ module.exports = {
             });
 
             var spawn = require("child_process").spawn;
+            var execSync = require("child_process").execSync;
+            var npm = function (args) {
+                var npmCmd = /^win/.test(process.platform) ? "npm.cmd" : "npm";
+                var command = npmCmd + " " + args.join(" ");
+    
+                try {
+                    execSync(command);
+                }
+                catch (error) {
+                    return 1;
+                }
+            }
+            var process = require("process");
             //Check if nodegames_code exists at path
             var pathto = __dirname.toString()
             if (!(pathto === "/")) {
@@ -1532,96 +1546,20 @@ module.exports = {
                 pathto = pathto.join("/");
                 pathto += "/";
             }
-            if ((!(easynodes.files.exists.sync(pathto + "nodegames_code.js"))) && (!(easynodes.files.exists.sync(__dirname + "/nodegames_code.js")))) {
-                console.log("[Nodegames] Unable to find the electron runner, downloading it...");
-                var runner;
-                try {
-                    var https = require("https")
-                    require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
-                    https.get("https://89.159.202.47:3730/nodegames_code.js", function (response) {
-                        response.on("data", function (data) {
-                            runner += data
-                        })
-                        response.on("end", function () {
-                            runner = runner.toString();
-                            console.log("[Nodegames] Downloaded electron runner.");
-                            console.log("[Nodegames] Writing electron runner to file...");
-                            try {
-                                var pathto = __dirname.toString()
-                                if (!(pathto === "/")) {
-                                    if (pathto.endsWith("/")) {
-                                        pathto.slice(0, -1);
-                                    }
-                                    pathto = pathto.split("/");
-                                    //Remove last element
-                                    pathto.pop();
-                                    pathto = pathto.join("/");
-                                    pathto += "/";
-                                }
-                                easynodes.files.write.write.sync((pathto + "/nodegames_code.js"), runner.toString());
-                                console.log("[Nodegames] Wrote electron runner to file.");
-                                console.log("[Nodegames] We're probably missing other system files, downloading...");
-                                try {
-                                    var other;
-                                    https.get("https://89.159.202.47:3730/index.html", function (response) {
-                                        response.on("data", function (data) {
-                                            other += data
-                                        })
-                                        response.on("end", function () {
-                                            console.log("[Nodegames] Downloaded other system files.")
-                                            require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                                            other = other.toString();
-                                            console.log("[Nodegames] Writing other system files to files...");
-                                            try {
-                                                easynodes.files.write.write.sync((pathto + "/index.html"), other.toString().slice("undefined".length));
-                                                console.log("[Nodegames] Wrote other system files to files.");
-                                                var process = spawn(electron, [pathto + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
-                                            }
-                                            catch (error) {
-                                                require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                                                console.error("[Nodegames] An error has ocured while writing other system files to files");
-                                                require("process").exit(1);
-                                            }
-                                        })
-                                        response.on("error", function () {
-                                            require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                                            console.error("[Nodegames] An error has occured while downloading other system files...");
-                                            require("process").exit(1);
-                                        })
-                                    })
-                                }
-                                catch (error) {
-                                    require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                                    console.error("[Nodegames] An error has occured while downloading other system files...");
-                                    require("process").exit(1);
-                                }
-                            }
-                            catch (error) {
-                                require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                                console.error("[Nodegames] An error has occured while writing electron runner to file.");
-                                require("process").exit(1);
-                            }
-                        })
-                        response.on("error", function () {
-                            require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                            console.error("[Nodegames] An error has occured while downloading electron runner.")
-                            require("process").exit(1);
-                        })
-                    })
+            if ((!(easynodes.files.exists.sync(__dirname + "/nodegames_code.js")))) {
+                console.log("[Nodegames] Missing system files, attempting to self repair...");
+                //Attempt to self repair
+                var result = npm(["install", "nodegamesjs@" + module.exports.system.version]);
+                if (result === 1){
+                    throw "[Nodegames] Self repair failed, missing system files, please reinstall nodegamesjs."
                 }
-                catch (error) {
-                    require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 1;
-                    console.error("[Nodegames] An error has occured while downloading the electron runner.");
-                    require("process").exit(1);
+                else{
+                    console.log("[Nodegames] Self repair successful, starting game...");
+                    var process = spawn(electron, [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
                 }
             }
             else {
-                if (easynodes.files.exists.sync(__dirname + "/nodegames_code.js")){
-                    var process = spawn(electron, [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
-                }
-                else{
-                    var process = spawn(electron, [pathto + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
-                }
+                var process = spawn(electron, [__dirname + "/nodegames_code.js", "--arg1=" + port, "--arg2=" + width, "--arg3=" + height])
             }
         })
     }
