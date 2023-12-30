@@ -3,7 +3,7 @@
 
 module.exports = {
     "system": {
-        "version": "1.1.2",
+        "version": "1.1.4",
         "inited": false,
         "checkinit": function () {
             if (this.inited === false) {
