@@ -1,6 +1,6 @@
 {
   "name": "nodegamesjs",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Nodegames is a node.js game engine inspired by Pygame",
   "main": "nodegames.js",
   "scripts": {

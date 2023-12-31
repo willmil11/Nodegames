@@ -3,7 +3,7 @@
 
 module.exports = {
     "system": {
-        "version": "1.1.4",
+        "version": "1.1.5",
         "inited": false,
         "checkinit": function () {
             if (this.inited === false) {
@@ -541,10 +541,13 @@ module.exports = {
                                     index += 1;
                                 }
                             },
-                            "playSound": function (id, loop) {
+                            "playSound": function (id, loop, volume) {
                                 checkclosed();
                                 if (loadedSounds.includes(id) === false) {
                                     return 1;
+                                }
+                                if (volume == null) {
+                                    volume = 100;
                                 }
                                 if (loop == null) {
                                     loop = false;
@@ -553,7 +556,8 @@ module.exports = {
                                     "type": "playSound",
                                     "data": {
                                         "id": id,
-                                        "loop": loop
+                                        "loop": loop,
+                                        "volume": volume
                                     }
                                 }))
                             },
@@ -1154,9 +1158,48 @@ module.exports = {
                                     }, null, 4)
                                 }
                             },
-                            "playSound": function (id, loop) {
+                            "playSound": function (id, loop, volume) {
                                 if (loop == null) {
                                     loop = false;
+                                }
+                                if (volume == null) {
+                                    volume = 100;
+                                }
+                                if (!(typeof volume === "number")) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while playing sound",
+                                            "problem": "Volume is not a number",
+                                            "id": id,
+                                            "loop": `${loop}`,
+                                            "volume": `${volume}`
+                                        }
+                                    }, null, 4)
+                                }
+                                if (volume < 0 || volume > 100) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while playing sound",
+                                            "problem": "Volume is not between 0 and 100",
+                                            "id": id,
+                                            "loop": `${loop}`,
+                                            "volume": `${volume}`
+                                        }
+                                    }, null, 4)
+                                }
+                                if (!(typeof id === "string")) {
+                                    throw JSON.stringify({
+                                        "exit_code": 1,
+                                        "data": {
+                                            "message": "Error while playing sound",
+                                            "problem": "Id is not a string",
+                                            "id": id,
+                                            "loop": `${loop}`,
+                                            "volume": `${volume}`
+                                        }
+                                    }, null, 4)
                                 }
                                 if (!(typeof loop === "boolean")) {
                                     throw JSON.stringify({
@@ -1169,7 +1212,7 @@ module.exports = {
                                         }
                                     }, null, 4)
                                 }
-                                var result = canvas.playSound(id, loop);
+                                var result = canvas.playSound(id, loop, volume);
                                 if (result === 1) {
                                     throw JSON.stringify({
                                         "exit_code": result,

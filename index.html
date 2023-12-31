@@ -801,6 +801,7 @@
                                                                                 if (data.type === "playSound") {
                                                                                     var id = data.data.id
                                                                                     var loop = data.data.loop
+                                                                                    var volume = data.data.volume //Volume is 0-100
                                                                                     //If sound doesnt exist
                                                                                     if (sounds[id] == null) {
                                                                                         ws2.send(JSON.stringify({
@@ -813,6 +814,7 @@
                                                                                     }
                                                                                     //If loop is true loop the sound else play it once
                                                                                     var sound = sounds[id]
+                                                                                    sound.volume = volume / 100
                                                                                     if (loop) {
                                                                                         sound.loop = true
                                                                                         sound.play()

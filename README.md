@@ -1,4 +1,4 @@
-# Nodegames 1.1.4 by willmil11
+# Nodegames 1.1.5 by willmil11
 ## Installation
 1. You will be required to have node.js and npm installed as well as having an internet connection.
 2. Run the following command: `npm install nodegamesjs`
@@ -299,12 +299,19 @@ This should unload the sound, this does not return any kind of promise tho. just
 <br>
 <br>
 To play a sound you can do the following:
+
 ```js
-game.playSound(id)
+//
+//Syntax: game.playSound(id:string, loop:boolean/null, volume:int(0-100)/null)
+//
+
+//Examples:
+game.playSound("My_sound") //Play sound with id "My_sound" once at volume 100%
+game.playSound("My_sound", true) //Play sound with id "My_sound" in loop at volume 100%
+game.playSound("My_sound", false) //Play sound with id "My_sound" once at volume 100%
+game.playSound("My_sound", true, 50) //Play sound with id "My_sound" in loop at volume 50%
+game.playSound("My_sound", false, 50) //Play sound with id "My_sound" once at volume 50%
 ```
-This should begin playing the sound.
-<br>
-<br>
 To stop a sound you can do the following:
 ```js
 game.stopSound(id)
@@ -387,6 +394,8 @@ If you find bugs or have a suggestion you can send them in the <a href="https://
 <a href="https://github.com/willmil11/Nodegames/">Click to go to the repo</a>
 
 ## Changelog
+### 1.1.5
+- Edited readme and added a minor feature: before it was not shown that you can play a sound in loop. And the minor feature is that now you can choose the volume of a sound when playing it.
 ### 1.1.4
 - Changed readme to indicate that nodegamesjs-forge is released and added a link to the npm page.
 ### 1.1.3
