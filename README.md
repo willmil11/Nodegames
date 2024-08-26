@@ -8,7 +8,7 @@
 2. Run the following command: `npm update nodegamesjs`
 3. You are now ready to use nodegames!
 ## Package your game to an executable
-Use <a href="https://www.npmjs.com/package/nodegamesjs-forge">nodegamesjs-forge</a>
+Use <a href="https://www.npmjs.com/package/nodegamesjs-forge">nodegamesjs-forge</a> (in-dev so won't work well at all,<strong> at least for now</strong>)
 ## Usage
 First you'll have to require the module.
 ```js
